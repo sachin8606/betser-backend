@@ -14,16 +14,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Database Connection
-require('./db/connect');
+require('./db/sequelize');
 
 // Routes
 const userRoutes = require('./routes/user.routes');
 const requestRoutes = require('./routes/request.routes');
-const adminRoutes = require('./routes/admin.routes')
+const adminRoutes = require('./routes/admin.routes');
+const categoryRoutes = require('./routes/category.routes'); 
 
 app.use('/api/user', userRoutes);
 app.use('/api/request', requestRoutes);
-app.use('/api/admin', adminRoutes)
+app.use('/api/admin', adminRoutes);
+app.use('/api/category', categoryRoutes);
 
 // Health Check
 app.get('/', (req, res) => {

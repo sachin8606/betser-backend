@@ -1,48 +1,44 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
+const sequelize = require('../db/sequelize'); // Assuming you have the sequelize instance
 
-const adminSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    role: {
-      type: String,
-      enum: ['superAdmin', 'supportAdmin'],
-      default: 'supportAdmin',
+const Admin = sequelize.define('Admin', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  role: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'supportAdmin',
+    validate: {
+      isIn: [['superAdmin', 'supportAdmin']], // Validate the role field
     },
   },
-  {
-    timestamps: true,
-  }
-);
+}, {
+  timestamps: true,
+});
 
 // Hash password before saving
-adminSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
+Admin.beforeCreate(async (admin) => {
+  if (admin.password) {
+    const salt = await bcrypt.genSalt(10);
+    admin.password = await bcrypt.hash(admin.password, salt);
   }
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Compare password for authentication
-adminSchema.methods.comparePassword = async function (enteredPassword) {
+Admin.prototype.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
-const Admin = mongoose.model('Admin', adminSchema);
 
 module.exports = Admin;

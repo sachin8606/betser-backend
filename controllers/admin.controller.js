@@ -9,14 +9,14 @@ const {
     sendNotificationOrMessage,
     getAllHelpRequests,
     acknowledgeHelpRequest,
+    updateUserDetails,
 } = require('../db/queries/admin.queries');
 const jwt = require('jsonwebtoken');
 
 const generateToken = (user) => {
     const payload = {
-        id: user._id,
-        name: user.name,
-        email: user.email,
+        id: user.id,
+        role: user.role
     };
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10h' });
 };
@@ -28,9 +28,13 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const admin = await authenticateAdmin(email, password);
-
-        const token = generateToken(admin);
-        res.status(200).json({ token, admin });
+        res.status(200).json({
+            _id: admin.id,
+            name: admin.name,
+            email: admin.email,
+            role: admin.role,
+            token:generateToken(admin),
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -59,7 +63,8 @@ exports.searchUsersHandler = async (req, res) => {
 // Export users as CSV
 exports.exportUsers = async (req, res) => {
     try {
-        const users = await getAllUsers();
+        const filter = req.body.filter || {};
+        const users = await getAllUsers(filter);
         const csv = users.map((user) => `${user.name},${user.phone}`).join('\n');
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename="users.csv"');
@@ -69,16 +74,28 @@ exports.exportUsers = async (req, res) => {
     }
 };
 
+// Update user details
+exports.updateUserDetailsHandler = async (req, res) => {
+    try {
+        const { id,data } = req.body;
+        const updatedUser = await updateUserDetails(id, data);
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
 // Get user details
 exports.getUserDetailsHandler = async (req, res) => {
     try {
         const { id } = req.params;
-        const userDetails = await getUserDetails(phone);
+        const userDetails = await getUserDetails(id);
         res.status(200).json(userDetails);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 // Send notification or message
 exports.sendNotification = async (req, res) => {
@@ -100,7 +117,8 @@ exports.sendNotification = async (req, res) => {
 // Get help requests
 exports.getHelpRequests = async (req, res) => {
     try {
-        const helpRequests = await getAllHelpRequests();
+        const filter = req.body.filter || {};
+        const helpRequests = await getAllHelpRequests(filter);
         res.status(200).json(helpRequests);
     } catch (error) {
         res.status(400).json({ error: error.message });

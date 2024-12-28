@@ -2,12 +2,12 @@ const { createRequest, findRequestsByUser, findRequestById } = require('../db/qu
 
 exports.createRequest = async (req, res) => {
   try {
-    const { userId, type, details } = req.body;
-    if (!userId || !type || !details) {
+    const { userId, type, description } = req.body;
+    if (!userId || !type || !description) {
       return res.status(400).json({ message: 'All fields are required: userId, type, and details.' });
     }
 
-    const request = await createRequest({ user: userId, type, details });
+    const request = await createRequest({ userId, type, description });
     res.status(201).json({ message: 'Request created successfully', request });
   } catch (error) {
     res.status(500).json({ error: error.message });

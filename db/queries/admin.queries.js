@@ -3,77 +3,95 @@ const User = require('../../models/user.model');
 const Request = require('../../models/request.model');
 const CommunicationLog = require('../../models/communicationLog.model');
 
-const createAdmin = async (adminData) => {
+// Create Admin
+exports.createAdmin = async (adminData) => {
   return await Admin.create(adminData);
 };
-const findAdminByEmail = async (email) => {
-  return await Admin.findOne({ email });
+
+// Find Admin by Email
+exports.findAdminByEmail = async (email) => {
+  return await Admin.findOne({ where: { email } });
 };
 
-const findAdminById = async (id) => {
-  return await Admin.findById(id);
+// Find Admin by ID
+exports.findAdminById = async (id) => {
+  return await Admin.findByPk(id);
 };
 
-const authenticateAdmin = async (email, password) => {
-  const admin = await Admin.findOne({ email });
+// Authenticate Admin
+exports.authenticateAdmin = async (email, password) => {
+  const admin = await Admin.findOne({ where: { email } });
   if (!admin || !(await admin.comparePassword(password))) {
     throw new Error('Invalid email or password');
   }
   return admin;
 };
 
-const searchUsers = async (filters) => {
+// Search Users
+exports.searchUsers = async (filters) => {
   const query = {};
-  if (filters.phone) query.phone = { $regex: filters.phone, $options: 'i' };
-  if (filters.name) query.name = { $regex: filters.name, $options: 'i' };
+  if (filters.phone) query.phone = { [Op.iLike]: `%${filters.phone}%` }; // Case-insensitive search for phone
+  if (filters.firstName) query.name = { [Op.iLike]: `%${filters.firstName}%` }; // Case-insensitive search for name
 
-  return await User.find(query);
+  return await User.findAll({
+    where: query,
+    attributes: ['firstName','lastName','nickName','phone', 'email', 'createdAt','id'],
+  });
 };
 
+// Update User Details
+exports.updateUserDetails = async (userId, updatedData) => {
+  const user = await User.findByPk(userId);
 
-const getAllUsers = async () => {
-  return await User.find({});
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  await user.update(updatedData); // Use Sequelize's `update` method
+  return user;
 };
 
-const getUserDetails = async (id) => {
-  const user = await User.findById(id).populate('emergencyContacts');
+// Get All Users
+exports.getAllUsers = async (filter) => {
+  return await User.findAll({ where: filter });
+};
+
+// Get User Details
+exports.getUserDetails = async (id) => {
+  const user = await User.findByPk(id, {
+    attributes: { exclude: ['password', 'createdAt'] }, // Exclude these attributes
+  });  
   if (!user) throw new Error('User not found');
-
-  const requests = await Request.find({ user: user._id });
-  return { user, requests };
+  return user;
 };
 
-const logCommunication = async (data) => {
+// Get Help Requests by User
+exports.getHelpRequests = async (user) => {
+  const requests = await Request.findAll({ where: { userId: user.id } });
+  return requests;
+};
+
+// Log Communication
+exports.logCommunication = async (data) => {
   return await CommunicationLog.create(data);
 };
 
-const sendNotificationOrMessage = async (logData) => {
+// Send Notification or Message
+exports.sendNotificationOrMessage = async (logData) => {
   return await CommunicationLog.create(logData);
 };
 
-const getAllHelpRequests = async () => {
-  return await Request.find({}).populate('user');
+// Get All Help Requests
+exports.getAllHelpRequests = async (filter) => {
+  return await Request.findAll({ where: filter });
 };
 
-const acknowledgeHelpRequest = async (requestId, adminId) => {
-  const request = await Request.findById(requestId);
+// Acknowledge Help Request
+exports.acknowledgeHelpRequest = async (requestId, adminId) => {
+  const request = await Request.findByPk(requestId);
   if (!request) throw new Error('Help request not found');
 
-  request.status = 'Resolved';
+  request.status = 'Resolved'; // Update status
   await request.save();
   return request;
-};
-
-module.exports = {
-  createAdmin,
-  findAdminByEmail,
-  findAdminById,
-  authenticateAdmin,
-  searchUsers,
-  getAllUsers,
-  getUserDetails,
-  logCommunication,
-  sendNotificationOrMessage,
-  getAllHelpRequests,
-  acknowledgeHelpRequest,
 };

@@ -1,11 +1,25 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../db/sequelize');
 
-const requestSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  type: { type: String, enum: ['Emergency', 'General'], required: true },
-  description: { type: String },
-  status: { type: String, enum: ['Pending', 'Resolved'], default: 'Pending' },
-  timestamp: { type: Date, default: Date.now },
+const Request = sequelize.define('Request', {
+  userId: {
+    type: DataTypes.INTEGER, 
+    allowNull: false,
+    references: { model: 'Users', key: 'id' },
+  },
+  type: {
+    type: DataTypes.ENUM('Emergency', 'General'),
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.TEXT,
+  },
+  status: {
+    type: DataTypes.ENUM('Pending', 'Resolved'),
+    defaultValue: 'Pending',
+  },
+}, {
+  timestamps: true,
 });
 
-module.exports = mongoose.model('Request', requestSchema);
+module.exports = Request;

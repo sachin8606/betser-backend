@@ -1,11 +1,12 @@
 const express = require('express');
-const { registerUser, loginUser, addEmergencyContact, getEmergencyContacts, deleteEmergencyContact } = require('../controllers/user.controller');
+const { registerUser, loginUser, addEmergencyContact, getEmergencyContacts, deleteEmergencyContact, loginUserMobile, loginUserMail } = require('../controllers/user.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
 router.post('/register', registerUser);
-router.post('/login', loginUser);
+router.post('/loginMobile', loginUserMobile);
+router.post('/loginMail', loginUserMail);
 router.post('/add-emergency-contact', authenticate, addEmergencyContact);
 router.post('/emergency-contacts', authenticate, getEmergencyContacts);
 router.post('/delete-emergency-contact', authenticate, deleteEmergencyContact);

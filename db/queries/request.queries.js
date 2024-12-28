@@ -1,14 +1,25 @@
+// queries/request.queries.js
 const Request = require('../../models/request.model');
 
-const createRequest = async (requestData) => await Request.create(requestData);
+// Create a new request
+exports.createRequest = async (requestData) => {
+  console.log(requestData)
+  return await Request.create(requestData);
+};
 
-const getRequestsByUser = async (userId) => await Request.find({ user: userId });
+// Get requests by user
+exports.getRequestsByUser = async (userId) => {
+  return await Request.findAll({ where: { userId } });
+};
 
-const updateRequestStatus = async (requestId, status) => 
-  await Request.findByIdAndUpdate(requestId, { status }, { new: true });
-
-module.exports = {
-  createRequest,
-  getRequestsByUser,
-  updateRequestStatus,
+// Update request status
+exports.updateRequestStatus = async (requestId, status) => {
+  const [updatedRows, [updatedRequest]] = await Request.update(
+    { status },
+    {
+      where: { id: requestId },
+      returning: true,
+    }
+  );
+  return updatedRequest;
 };
