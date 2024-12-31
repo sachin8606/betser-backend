@@ -1,7 +1,7 @@
 const Admin = require('../../models/admin.model');
 const User = require('../../models/user.model');
 const Request = require('../../models/request.model');
-const CommunicationLog = require('../../models/communicationLog.model');
+
 
 // Create Admin
 exports.createAdmin = async (adminData) => {
@@ -69,16 +69,6 @@ exports.getUserDetails = async (id) => {
 exports.getHelpRequests = async (user) => {
   const requests = await Request.findAll({ where: { userId: user.id } });
   return requests;
-};
-
-// Log Communication
-exports.logCommunication = async (data) => {
-  return await CommunicationLog.create(data);
-};
-
-// Send Notification or Message
-exports.sendNotificationOrMessage = async (logData) => {
-  return await CommunicationLog.create(logData);
 };
 
 // Get All Help Requests
