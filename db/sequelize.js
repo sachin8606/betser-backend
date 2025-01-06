@@ -1,11 +1,25 @@
 // config/sequelize.js
 const { Sequelize } = require('sequelize');
+let sequelize;
+if (process.env.MODE === 'PRODUCTION') {
+  // Create a new Sequelize instance
+  sequelize = new Sequelize(process.env.POSTGRES_URI, {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
+  });
+} else {
+  // Create a new Sequelize instance
+  sequelize = new Sequelize(process.env.POSTGRES_URI, {
+    dialect: 'postgres',
+  });
+}
 
-// Create a new Sequelize instance
-const sequelize = new Sequelize(process.env.POSTGRES_URI, {
-  dialect: 'postgres', // Specify PostgreSQL as the dialect
-  logging: console.log, // Optional: Set to `false` to disable SQL query logging
-});
+
 
 const connectDB = async () => {
   try {

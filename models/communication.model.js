@@ -39,7 +39,6 @@ const Communication = sequelize.define('Communication', {
   },
 }, {
   timestamps: true,
-  comment: 'Log of communications between Admins and Users',
 });
 
 module.exports = Communication;

@@ -1,45 +1,55 @@
 const Message = require('../models/communication.model');
 
-const users = {};
+const users = {}; // Store users and their corresponding socket IDs
 
 const socketService = (io) => {
   io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
 
-    socket.on('register', (userId) => {
-      users[userId] = socket.id;
-      console.log(`User registered with ID: ${userId}`);
+    // Handle user registration
+    socket.on('register', ({ userId, role }) => {
+      users[`${role}:${userId}`] = socket.id;
+      console.log(`User registered: ${role}:${userId}`);
+      io.emit('userStatus', `${role} connected`);
+      console.log(users)
     });
 
+    // Handle sending messages
     socket.on('sendMessage', async (data) => {
-      const { senderId, receiverId, message, mediaUrl } = data;
+      const { senderId, senderRole, receiverId, receiverRole, message, mediaUrl,type } = data;
 
       try {
+        // Save the message in the database
         const savedMessage = await Message.create({
           senderId,
+          senderRole,
           receiverId,
+          receiverRole,
           message,
           mediaUrl,
+          type
         });
 
-        const receiverSocketId = users[receiverId];
+        // Emit the message to the receiver if they are online
+        const receiverSocketId = users[`${receiverRole}:${receiverId}`];
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('receiveMessage', savedMessage);
         } else {
-          console.log(`Receiver ${receiverId} is not connected`);
+          console.log(`Receiver ${receiverRole}:${receiverId} is not online.`);
         }
       } catch (err) {
         console.error('Error saving message:', err);
       }
     });
 
+    // Handle disconnection
     socket.on('disconnect', () => {
-      for (const [userId, socketId] of Object.entries(users)) {
-        if (socketId === socket.id) {
-          delete users[userId];
-          console.log(`User disconnected: ${userId}`);
-          break;
-        }
+      const disconnectedUser = Object.keys(users).find(
+        (key) => users[key] === socket.id
+      );
+      if (disconnectedUser) {
+        delete users[disconnectedUser];
+        console.log(`User disconnected: ${disconnectedUser}`);
       }
     });
   });
