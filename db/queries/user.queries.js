@@ -10,6 +10,7 @@ exports.createUser = async (userData) => {
 
 // Find a user by filter (email, phone, etc.)
 exports.findUser = async (filter) => {
+  console.log(filter)
   return await User.findOne({
     where: filter,
     include: EmergencyContact, // You can include related emergency contacts if needed

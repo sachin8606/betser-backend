@@ -12,6 +12,11 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  countryCode:{
+    type:DataTypes.INTEGER,
+    allowNull:false,
+    defaultValue:91
+  },
   nickName: {
     type: DataTypes.STRING,
     allowNull: false,
