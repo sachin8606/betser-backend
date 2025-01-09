@@ -1,4 +1,4 @@
-const { createUser, findUserById, addEmergencyContactToUser, getEmergencyContacts, deleteEmergencyContactFromUser, findUser } = require('../db/queries/user.queries');
+const { createUser, findUserById, getEmergencyContacts, deleteEmergencyContactFromUser, findUser, addEmergencyContactsToUser } = require('../db/queries/user.queries');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -66,16 +66,18 @@ exports.loginUserMobile = async (req, res) => {
   }
 };
 
-exports.addEmergencyContact = async (req, res) => {
-  const { name, phone } = req.body;
+exports.addEmergencyContacts = async (req, res) => {
+  const contacts = req.body.contacts; // Expecting an array of contacts [{ name, phone }, ...]
   const userId = req.user.id;
+
   try {
-    const updatedContacts = await addEmergencyContactToUser(userId, { name, phone });
-    res.status(201).json({ message: "Emergency contact added", data: updatedContacts });
+    const updatedContacts = await addEmergencyContactsToUser(userId, contacts);
+    res.status(201).json({ message: "Emergency contacts added", data: updatedContacts });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 exports.deleteEmergencyContact = async (req, res) => {
   const { contactId } = req.body;

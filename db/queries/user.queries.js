@@ -26,26 +26,30 @@ exports.findUserById = async (id) => {
 };
 
 // Add an emergency contact to a user
-exports.addEmergencyContactToUser = async (userId, contact) => {
+exports.addEmergencyContactsToUser = async (userId, contacts) => {
   const user = await User.findByPk(userId);
 
   if (!user) {
     throw new Error('User not found');
   }
 
-  // Limit the number of emergency contacts to 5
-  const emergencyContactsCount = await EmergencyContact.count({ where: { userId: user.id } });
-  if (emergencyContactsCount >= 5) {
+  // Check current number of emergency contacts
+  const emergencyContactsCount = await EmergencyContact.count({ where: { userId } });
+
+  // Ensure the total count (existing + new) doesn't exceed 5
+  if (emergencyContactsCount + contacts.length > 5) {
     throw new Error('Cannot add more than 5 emergency contacts');
   }
 
-  const newContact = await EmergencyContact.create({
-    ...contact,
-    userId: user.id, // Associate the contact with the user
-  });
+  // Add each contact while associating it with the user
+  const newContacts = await EmergencyContact.bulkCreate(
+    contacts.map((contact) => ({ ...contact, userId })),
+    { returning: true } // Return the created records
+  );
 
-  return newContact;
+  return newContacts;
 };
+
 
 // Delete an emergency contact from a user
 exports.deleteEmergencyContactFromUser = async (userId, contactId) => {
