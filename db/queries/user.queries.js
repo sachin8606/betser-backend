@@ -17,15 +17,13 @@ exports.findUser = async (filter) => {
   });
 };
 
-// Find a user by ID (excluding the password field)
 exports.findUserById = async (id) => {
   return await User.findByPk(id, {
     attributes: { exclude: ['password'] },
-    include: EmergencyContact, // Include related emergency contacts if needed
+    include: EmergencyContact,
   });
 };
 
-// Add an emergency contact to a user
 exports.addEmergencyContactsToUser = async (userId, contacts) => {
   const user = await User.findByPk(userId);
 
@@ -33,25 +31,20 @@ exports.addEmergencyContactsToUser = async (userId, contacts) => {
     throw new Error('User not found');
   }
 
-  // Check current number of emergency contacts
   const emergencyContactsCount = await EmergencyContact.count({ where: { userId } });
 
-  // Ensure the total count (existing + new) doesn't exceed 5
   if (emergencyContactsCount + contacts.length > 5) {
     throw new Error('Cannot add more than 5 emergency contacts');
   }
 
-  // Add each contact while associating it with the user
   const newContacts = await EmergencyContact.bulkCreate(
     contacts.map((contact) => ({ ...contact, userId })),
-    { returning: true } // Return the created records
+    { returning: true }
   );
 
   return newContacts;
 };
 
-
-// Delete an emergency contact from a user
 exports.deleteEmergencyContactFromUser = async (userId, contactId) => {
   const user = await User.findByPk(userId);
 
@@ -70,19 +63,22 @@ exports.deleteEmergencyContactFromUser = async (userId, contactId) => {
     throw new Error('Emergency contact not found');
   }
 
-  await contact.destroy(); // Delete the contact
-  return `Emergency contact with ID ${contactId} has been deleted`;
+  await contact.destroy(); 
+  return `Emergency contact with mobile number ${phone} has been deleted`;
 };
 
-// Get all emergency contacts of a user
 exports.getEmergencyContacts = async (userId) => {
   const user = await User.findByPk(userId, {
-    include: EmergencyContact, // Include emergency contacts
+    include: EmergencyContact,
   });
 
   if (!user) {
     throw new Error('User not found');
   }
 
-  return user.EmergencyContacts; // Return the associated emergency contacts
+  return user.EmergencyContacts; 
 };
+
+exports.countEmergencyContacts = async (filter) => {
+  return await EmergencyContact.count(filter)
+}
