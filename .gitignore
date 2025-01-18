@@ -1,6 +1,9 @@
 ./node-modules
 /node_modules
+/secretFiles
 /
 .env
 /.env
 /.env/*
+serviceAccountKey.json
+

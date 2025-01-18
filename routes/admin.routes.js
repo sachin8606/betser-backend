@@ -7,7 +7,7 @@ router.post('/login', login);
 router.post('/register', register);
 router.get('/users', authenticate, searchUsersHandler);
 router.post('/user/edit',authenticate,updateUserDetailsHandler);
-router.post('/users/export', authenticate, exportUsers);
+router.post('/export/users', authenticate, exportUsers);
 router.get('/users/:id', authenticate, getUserDetailsHandler);
 router.post('/notifications/send', authenticate, sendNotification);
 router.post('/help-requests', authenticate, getHelpRequests);

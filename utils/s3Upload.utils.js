@@ -9,10 +9,10 @@ const s3Client = new S3Client({
 });
 
 exports.s3Upload = async (file) => {
-  const { name, type, data: fileData } = file;
+  const { name, type, data: fileData,folder } = file;
   const uploadParams = {
     Bucket: process.env.COMMUNICATION_BUCKET,
-    Key: `${Date.now()}-${name}`,
+    Key: `${folder}/${Date.now()}-${name}`,
     Body: Buffer.from(fileData), // Convert binary data to buffer
     ContentType: type,
   };

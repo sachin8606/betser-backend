@@ -4,6 +4,10 @@ const sequelize = require('../db/sequelize');
 const EmergencyContact = require('./emergencyContact.model');
 
 const User = sequelize.define('User', {
+  otp: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   firstName: {
     type: DataTypes.STRING,
     allowNull: false,

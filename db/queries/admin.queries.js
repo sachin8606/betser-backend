@@ -1,7 +1,7 @@
 const Admin = require('../../models/admin.model');
 const User = require('../../models/user.model');
 const Request = require('../../models/request.model');
-
+const { Op } = require('sequelize');
 
 // Create Admin
 exports.createAdmin = async (adminData) => {
@@ -31,7 +31,7 @@ exports.authenticateAdmin = async (email, password) => {
 exports.searchUsers = async (filters) => {
   const query = {};
   if (filters.phone) query.phone = { [Op.iLike]: `%${filters.phone}%` }; // Case-insensitive search for phone
-  if (filters.firstName) query.name = { [Op.iLike]: `%${filters.firstName}%` }; // Case-insensitive search for name
+  if (filters.firstName) query.firstName = { [Op.iLike]: `%${filters.firstName}%` }; // Case-insensitive search for name
 
   return await User.findAll({
     where: query,

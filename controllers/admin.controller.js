@@ -12,7 +12,7 @@ const {
     updateUserDetails,
 } = require('../db/queries/admin.queries');
 const jwt = require('jsonwebtoken');
-
+const XLSX = require('xlsx');
 const generateToken = (user) => {
     const payload = {
         id: user.id,
@@ -33,7 +33,7 @@ exports.login = async (req, res) => {
             name: admin.name,
             email: admin.email,
             role: admin.role,
-            token:generateToken(admin),
+            token: generateToken(admin),
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
 
 // Register new admin
 exports.register = async (req, res) => {
-   try {
+    try {
         const admin = await createAdmin(req.body);
         res.status(201).json({ message: 'Admin created successfully', admin });
     } catch (error) {
@@ -64,11 +64,30 @@ exports.searchUsersHandler = async (req, res) => {
 exports.exportUsers = async (req, res) => {
     try {
         const filter = req.body.filter || {};
-        const users = await getAllUsers(filter);
-        const csv = users.map((user) => `${user.name},${user.phone}`).join('\n');
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename="users.csv"');
-        res.send(csv);
+        const users = await searchUsers(filter);
+        if (users.length === 0) {
+            throw new Error('No users found with the applied filters.');
+        }
+        // Prepare the data for the Excel file
+        const columns = ['First Name', 'Last Name', 'Nickname', 'Phone', 'Email', 'Created At', 'ID'];
+        const data = users.map((user) => [
+            user.firstName,
+            user.lastName,
+            user.nickName,
+            user.phone,
+            user.email,
+            user.createdAt.toISOString(),
+            user.id,
+        ]);
+        const workbook = XLSX.utils.book_new();
+        const worksheetData = [columns, ...data];
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Users')
+        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+        // Set the appropriate headers
+        res.setHeader('Content-Disposition', 'attachment; filename="users_export.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');;
+        res.status(200).send(buffer);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -77,7 +96,7 @@ exports.exportUsers = async (req, res) => {
 // Update user details
 exports.updateUserDetailsHandler = async (req, res) => {
     try {
-        const { id,data } = req.body;
+        const { id, data } = req.body;
         const updatedUser = await updateUserDetails(id, data);
         res.status(200).json(updatedUser);
     } catch (error) {

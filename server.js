@@ -21,11 +21,14 @@ const userRoutes = require('./routes/user.routes');
 const requestRoutes = require('./routes/request.routes');
 const adminRoutes = require('./routes/admin.routes');
 const categoryRoutes = require('./routes/category.routes');
+const alertRoutes = require('./routes/alert.routes');
+const { initializeCron } = require('./crons/emergencyContacts');
 
 app.use('/api/user', userRoutes);
 app.use('/api/request', requestRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/category', categoryRoutes);
+app.use('/api/alert', alertRoutes);
 
 // Health Check
 app.get('/', (req, res) => {
@@ -37,6 +40,7 @@ const server = http.createServer(app);
 
 // Initialize Socket.IO with CORS
 const io = new Server(server, {
+  maxHttpBufferSize: 1e8,
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
@@ -45,6 +49,9 @@ const io = new Server(server, {
 
 // Initialize Socket.IO Service
 socketService(io);
+
+// Initialize cron jobs
+initializeCron()
 
 // Start Server
 server.listen(PORT, (err) => {
