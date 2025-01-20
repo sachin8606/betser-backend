@@ -12,7 +12,7 @@ const generateToken = (user) => {
 };
 
 exports.registerUser = async (req, res) => {
-  const { firstName, lastName, nickName, email, password, phone } = req.body;
+  const { firstName, lastName, nickName, email, phone } = req.body;
 
   try {
     const userExists = await findUser({ email });
@@ -20,7 +20,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const user = await createUser({ firstName, lastName, nickName, password, phone, email });
+    const user = await createUser({ firstName, lastName, nickName, phone, email });
     res.status(201).json({
       user: {
         firstName: user.firstName,
@@ -37,12 +37,14 @@ exports.registerUser = async (req, res) => {
 
 
 exports.loginUserMail = async (req, res) => {
-  const { email, password } = req.body;
+  const { email } = req.body;
 
   try {
     const user = await findUser({ email });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      res.json({ token: generateToken(user), message: 'Login successful' });
+    if (user) {
+      const otp = Math.floor(1000 + Math.random() * 9000);
+      await user.update({otp})
+      res.json({otp:otp, message: 'otp generated' });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }

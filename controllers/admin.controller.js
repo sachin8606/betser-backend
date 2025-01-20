@@ -1,7 +1,6 @@
 const {
     createAdmin,
     findAdminByEmail,
-    authenticateAdmin,
     searchUsers,
     getAllUsers,
     getUserDetails,
@@ -10,6 +9,7 @@ const {
     getAllHelpRequests,
     acknowledgeHelpRequest,
     updateUserDetails,
+    findAdminByMobile,
 } = require('../db/queries/admin.queries');
 const jwt = require('jsonwebtoken');
 const XLSX = require('xlsx');
@@ -21,20 +21,18 @@ const generateToken = (user) => {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10h' });
 };
 
-
-
 // Admin login
-exports.login = async (req, res) => {
+exports.loginPhone = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const admin = await authenticateAdmin(email, password);
-        res.status(200).json({
-            _id: admin.id,
-            name: admin.name,
-            email: admin.email,
-            role: admin.role,
-            token: generateToken(admin),
-        });
+        const { phone } = req.body;
+        const admin = await findAdminByMobile(phone);
+        if (admin) {
+            const otp = Math.floor(1000 + Math.random() * 9000);
+            await user.update({ otp })
+            res.json({ otp: otp, message: 'otp generated' });
+        } else {
+            res.status(401).json({ message: 'Invalid credentials' });
+        }
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -49,6 +47,24 @@ exports.register = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+// Verify Users
+exports.verifyOtp = async (req, res) => {
+    const { phone, otp } = req.body;
+    try {
+        const admin = await findAdminByMobile({ phone });
+        if (!admin) {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+        if (admin.otp === otp) {
+            return res.status(200).json({ message: 'success', token: generateToken(admin) });
+        } else {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+    } catch (error) {
+        res.json(500).json({ message: 'Server error', error: error.message })
+    }
+}
 
 // Search users
 exports.searchUsersHandler = async (req, res) => {

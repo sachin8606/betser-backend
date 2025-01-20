@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middlewares/auth.middleware');
-const {login, register, getUserDetailsHandler, exportUsers, getHelpRequests, sendNotification,acknowledgeHelpRequestHandler, searchUsersHandler, updateUserDetailsHandler} = require('../controllers/admin.controller');
+const { register, getUserDetailsHandler, exportUsers, getHelpRequests, sendNotification,acknowledgeHelpRequestHandler, searchUsersHandler, updateUserDetailsHandler, loginPhone} = require('../controllers/admin.controller');
 
-router.post('/login', login);
+router.post('/login', loginPhone);
 router.post('/register', register);
 router.get('/users', authenticate, searchUsersHandler);
 router.post('/user/edit',authenticate,updateUserDetailsHandler);
