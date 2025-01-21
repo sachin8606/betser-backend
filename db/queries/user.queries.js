@@ -64,7 +64,7 @@ exports.deleteEmergencyContactFromUser = async (userId, contactId) => {
   }
 
   await contact.destroy(); 
-  return `Emergency contact with mobile number ${phone} has been deleted`;
+  return `Emergency contact with mobile number ${contact.phone} has been deleted`;
 };
 
 exports.getEmergencyContacts = async (userId) => {
