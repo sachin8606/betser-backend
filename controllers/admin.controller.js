@@ -1,6 +1,7 @@
 const {
     createAdmin,
     findAdminByEmail,
+    authenticateAdmin,
     searchUsers,
     getAllUsers,
     getUserDetails,
@@ -9,7 +10,7 @@ const {
     getAllHelpRequests,
     acknowledgeHelpRequest,
     updateUserDetails,
-    findAdminByMobile,
+    findAdminById,
 } = require('../db/queries/admin.queries');
 const jwt = require('jsonwebtoken');
 const XLSX = require('xlsx');
@@ -21,18 +22,20 @@ const generateToken = (user) => {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10h' });
 };
 
+
+
 // Admin login
-exports.loginPhone = async (req, res) => {
+exports.login = async (req, res) => {
     try {
-        const { phone } = req.body;
-        const admin = await findAdminByMobile(phone);
-        if (admin) {
-            const otp = Math.floor(1000 + Math.random() * 9000);
-            await user.update({ otp })
-            res.json({ otp: otp, message: 'otp generated' });
-        } else {
-            res.status(401).json({ message: 'Invalid credentials' });
-        }
+        const { email, password } = req.body;
+        const admin = await authenticateAdmin(email, password);
+        res.status(200).json({
+            id: admin.id,
+            name: admin.name,
+            email: admin.email,
+            role: admin.role,
+            token: generateToken(admin),
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -42,27 +45,25 @@ exports.loginPhone = async (req, res) => {
 exports.register = async (req, res) => {
     try {
         const admin = await createAdmin(req.body);
-        res.status(201).json({ message: 'Admin created successfully', admin });
+        if(admin){
+            res.status(201).json({ message: 'Admin created successfully' });
+        }
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
-// Verify Users
-exports.verifyOtp = async (req, res) => {
-    const { phone, otp } = req.body;
+// Get admin details
+exports.getAdminDetails = async (req, res) => {
     try {
-        const admin = await findAdminByMobile({ phone });
-        if (!admin) {
-            return res.status(404).json({ message: 'Admin not found' });
+        const { id } = req.user;
+        const admin = await findAdminById(id);
+        if(admin){
+            return res.status(200).json(admin);
         }
-        if (admin.otp === otp) {
-            return res.status(200).json({ message: 'success', token: generateToken(admin) });
-        } else {
-            return res.status(400).json({ message: 'Invalid or expired OTP' });
-        }
-    } catch (error) {
-        res.json(500).json({ message: 'Server error', error: error.message })
+        return res.status(200).json(admin);
+    }catch(error){
+        res.status(400).json({ error: error.message });
     }
 }
 
@@ -130,7 +131,6 @@ exports.getUserDetailsHandler = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
-
 
 // Send notification or message
 exports.sendNotification = async (req, res) => {

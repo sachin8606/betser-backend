@@ -13,14 +13,21 @@ exports.findAdminByEmail = async (email) => {
   return await Admin.findOne({ where: { email } });
 };
 
-// Find Admin by Mobile
-exports.findAdminByMobile = async (phone) => {
-  return await Admin.findOne({ where: { phone } });
-};
-
 // Find Admin by ID
 exports.findAdminById = async (id) => {
-  return await Admin.findByPk(id);
+  return await Admin.findByPk(id, {
+    attributes: { exclude: ["password"] },
+  });
+};
+
+
+// Authenticate Admin
+exports.authenticateAdmin = async (email, password) => {
+  const admin = await Admin.findOne({ where: { email } });
+  if (!admin || !(await admin.comparePassword(password))) {
+    throw new Error('Invalid email or password');
+  }
+  return admin;
 };
 
 // Search Users
@@ -55,7 +62,7 @@ exports.getAllUsers = async (filter) => {
 // Get User Details
 exports.getUserDetails = async (id) => {
   const user = await User.findByPk(id, {
-    attributes: { exclude: ['createdAt'] }, // Exclude these attributes
+    attributes: { exclude: ['password', 'createdAt'] }, // Exclude these attributes
   });  
   if (!user) throw new Error('User not found');
   return user;

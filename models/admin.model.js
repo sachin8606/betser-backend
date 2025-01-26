@@ -11,6 +11,9 @@ const Admin = sequelize.define('Admin', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  password:{
+    type:DataTypes.STRING,
+  },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -31,5 +34,18 @@ const Admin = sequelize.define('Admin', {
 }, {
   timestamps: true,
 });
+
+// Hash password before saving
+Admin.beforeCreate(async (admin) => {
+  if (admin.password) {
+    const salt = await bcrypt.genSalt(10);
+    admin.password = await bcrypt.hash(admin.password, salt);
+  }
+});
+
+// Compare password for authentication
+Admin.prototype.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 module.exports = Admin;

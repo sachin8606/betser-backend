@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middlewares/auth.middleware');
-const { register, getUserDetailsHandler, exportUsers, getHelpRequests, sendNotification,acknowledgeHelpRequestHandler, searchUsersHandler, updateUserDetailsHandler, loginPhone} = require('../controllers/admin.controller');
+const { register, getUserDetailsHandler, exportUsers, getHelpRequests, sendNotification,acknowledgeHelpRequestHandler, searchUsersHandler, updateUserDetailsHandler, login, getAdminDetails} = require('../controllers/admin.controller');
 
-router.post('/login', loginPhone);
+router.post('/login', login);
 router.post('/register', register);
+router.get('/details', authenticate, getAdminDetails);
 router.get('/users', authenticate, searchUsersHandler);
 router.post('/user/edit',authenticate,updateUserDetailsHandler);
 router.post('/export/users', authenticate, exportUsers);
