@@ -2,6 +2,7 @@ const Admin = require('../../models/admin.model');
 const User = require('../../models/user.model');
 const Request = require('../../models/request.model');
 const { Op } = require('sequelize');
+const EmergencyContact = require('../../models/emergencyContact.model');
 
 // Create Admin
 exports.createAdmin = async (adminData) => {
@@ -31,16 +32,32 @@ exports.authenticateAdmin = async (email, password) => {
 };
 
 // Search Users
-exports.searchUsers = async (filters) => {
-  const query = {};
-  if (filters.phone) query.phone = { [Op.iLike]: `%${filters.phone}%` }; // Case-insensitive search for phone
-  if (filters.firstName) query.firstName = { [Op.iLike]: `%${filters.firstName}%` }; // Case-insensitive search for name
+exports.searchUsers = async ({filters = {}, page = 1, limit = 1}) => {
 
-  return await User.findAll({
+  const query = {};
+
+  if (filters.searchKeyword) {
+    query[Op.or] = [
+      { phone: { [Op.iLike]: `%${filters.searchKeyword}%` } },
+      { firstName: { [Op.iLike]: `%${filters.searchKeyword}%` } }
+    ];
+  }
+
+  const offset = (page - 1) * limit;
+
+  const result = await User.findAndCountAll({
     where: query,
-    attributes: ['firstName','lastName','nickName','phone', 'email', 'createdAt','id'],
+    attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id'],
+    limit,
+    offset,
   });
-};
+
+  return {
+    totalPages: Math.ceil(result.count / limit),
+    currentPage: page,
+    users: result.rows,
+  };
+}
 
 // Update User Details
 exports.updateUserDetails = async (userId, updatedData) => {
@@ -55,15 +72,30 @@ exports.updateUserDetails = async (userId, updatedData) => {
 };
 
 // Get All Users
-exports.getAllUsers = async (filter) => {
-  return await User.findAll({ where: filter });
+exports.getAllUsers = async ({filter = {}, page = 1, limit = 1}) => {
+  const offset = (page - 1) * limit;
+
+  const users = await User.findAll({
+    where: filter,
+    limit,
+    offset,
+  });
+
+  const totalRecords = await User.count({ where: filter });
+
+  return {
+    totalPages: Math.ceil(totalRecords / limit),
+    currentPage: page,
+    users,
+  };
 };
 
 // Get User Details
 exports.getUserDetails = async (id) => {
   const user = await User.findByPk(id, {
-    attributes: { exclude: ['password', 'createdAt'] }, // Exclude these attributes
-  });  
+    attributes: { exclude: ['password', 'createdAt'] },
+    include:EmergencyContact
+  });
   if (!user) throw new Error('User not found');
   return user;
 };

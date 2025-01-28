@@ -19,7 +19,6 @@ const User = sequelize.define('User', {
   countryCode:{
     type:DataTypes.INTEGER,
     allowNull:false,
-    defaultValue:91
   },
   nickName: {
     type: DataTypes.STRING,
@@ -32,7 +31,8 @@ const User = sequelize.define('User', {
   },
   phone: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    unique:true
   },
   role: {
     type: DataTypes.STRING,

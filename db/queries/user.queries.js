@@ -4,16 +4,15 @@ const EmergencyContact = require('../../models/emergencyContact.model');
 // Create a new user
 exports.createUser = async (userData) => {
   return await User.create(userData, {
-    include: [EmergencyContact], // Include emergency contacts if part of the creation
+    include: [EmergencyContact],
   });
 };
 
 // Find a user by filter (email, phone, etc.)
 exports.findUser = async (filter) => {
-  console.log(filter)
   return await User.findOne({
     where: filter,
-    include: EmergencyContact, // You can include related emergency contacts if needed
+    include: EmergencyContact, 
   });
 };
 

@@ -6,7 +6,7 @@ const { register, getUserDetailsHandler, exportUsers, getHelpRequests, sendNotif
 router.post('/login', login);
 router.post('/register', register);
 router.get('/details', authenticate, getAdminDetails);
-router.get('/users', authenticate, searchUsersHandler);
+router.post('/users', authenticate, searchUsersHandler);
 router.post('/user/edit',authenticate,updateUserDetailsHandler);
 router.post('/export/users', authenticate, exportUsers);
 router.get('/users/:id', authenticate, getUserDetailsHandler);

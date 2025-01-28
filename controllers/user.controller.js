@@ -12,7 +12,7 @@ const generateToken = (user) => {
 };
 
 exports.registerUser = async (req, res) => {
-  const { firstName, lastName, nickName, email, phone } = req.body;
+  const { firstName, lastName, nickName, email, phone,countryCode } = req.body;
 
   try {
     const userExists = await findUser({ email });
@@ -20,16 +20,8 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const user = await createUser({ firstName, lastName, nickName, phone, email });
-    res.status(201).json({
-      user: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        nickName: user.nickName,
-        email: user.email,
-        phone: user.phone,
-      }, token: generateToken(user), message: 'User created successfully'
-    });
+    const user = await createUser({ firstName, lastName, nickName, phone, email,countryCode });
+    res.status(201).json({ message: 'User created successfully'});
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

@@ -13,6 +13,7 @@ const Admin = sequelize.define('Admin', {
   },
   password:{
     type:DataTypes.STRING,
+    allowNull:false
   },
   email: {
     type: DataTypes.STRING,
@@ -21,7 +22,8 @@ const Admin = sequelize.define('Admin', {
   },
   phone: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    unique:true
   },
   role: {
     type: DataTypes.STRING,
