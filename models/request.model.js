@@ -15,8 +15,8 @@ const Request = sequelize.define('Request', {
     type: DataTypes.TEXT,
   },
   status: {
-    type: DataTypes.ENUM('Pending', 'Resolved'),
-    defaultValue: 'Pending',
+    type: DataTypes.ENUM('pending','progress','resolved'),
+    defaultValue: 'pending',
   },
 }, {
   timestamps: true,

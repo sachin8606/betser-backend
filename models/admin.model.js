@@ -20,6 +20,11 @@ const Admin = sequelize.define('Admin', {
     allowNull: false,
     unique: true,
   },
+  fcm_token:{
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,
+  },
   phone: {
     type: DataTypes.STRING,
     allowNull: false,

@@ -1,4 +1,4 @@
-const CommunicationLog = require('../models/communication.model');
+const CommunicationLog = require('../../models/communication.model');
 const { Op } = require('sequelize');
 
 // Create a new message

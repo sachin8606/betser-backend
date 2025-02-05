@@ -3,6 +3,7 @@ const User = require('../../models/user.model');
 const Request = require('../../models/request.model');
 const { Op } = require('sequelize');
 const EmergencyContact = require('../../models/emergencyContact.model');
+const { setAdminFcmToken } = require('../../vars/vars');
 
 // Create Admin
 exports.createAdmin = async (adminData) => {
@@ -20,6 +21,19 @@ exports.findAdminById = async (id) => {
     attributes: { exclude: ["password"] },
   });
 };
+
+exports.updateAdmin = async (id, newData) => {
+  const admin = await Admin.findByPk(id);
+
+  if (!admin) {
+    throw new Error('Admin not found');
+  }
+  if(newData?.fcm_token){
+    setAdminFcmToken(newData.fcm_token)
+  }
+  await admin.update(newData);
+  return admin;
+}
 
 
 // Authenticate Admin
@@ -67,7 +81,7 @@ exports.updateUserDetails = async (userId, updatedData) => {
     throw new Error('User not found');
   }
 
-  await user.update(updatedData); // Use Sequelize's `update` method
+  await user.update(updatedData); 
   return user;
 };
 

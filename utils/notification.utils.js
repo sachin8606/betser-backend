@@ -1,4 +1,6 @@
 const axios = require('axios');
+const firebaseSdk = require('../config/firebase');
+const { getAdminFcmToken } = require('../vars/vars');
 
 const sendNotification = async ({ message, to }) => {
   try {
@@ -14,4 +16,22 @@ const sendNotification = async ({ message, to }) => {
   }
 };
 
-module.exports = sendNotification;
+const sendPushNotification = async ({title,message}) =>{
+  try{
+    const payload = {
+      notification: {
+        title,
+        body: message,
+      },
+      token: getAdminFcmToken()
+    };
+
+    // ✅ Send the notification
+    const response = await firebaseSdk.messaging().send(payload);
+    console.log('Successfully sent message:', response);
+  }catch(error){
+    console.log(error)
+  }
+}
+
+module.exports = {sendNotification,sendPushNotification};

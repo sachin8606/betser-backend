@@ -1,21 +1,23 @@
 const { Op } = require('sequelize');
-const Category = require('../../models/category.model'); // Assuming Category model is defined using Sequelize
+const { Category, Subcategory } = require('../../models/category.model');
 
-// Create Category
+// Create Category (without subcategories, as they should be added separately)
 exports.createCategory = async (categoryData) => {
   return await Category.create(categoryData);
 };
 
-// Get All Categories with optional filter
-exports.getAllCategories = async (filter) => {
+// Get All Categories with Subcategories
+exports.getAllCategories = async () => {
   return await Category.findAll({
-    where: filter, // Apply filter if provided
+    include: [{ model: Subcategory, as: 'subcategories' }],
   });
 };
 
-// Find Category by ID
+// Find Category by ID with Subcategories
 exports.findCategoryById = async (id) => {
-  return await Category.findByPk(id);
+  return await Category.findByPk(id, {
+    include: [{ model: Subcategory, as: 'subcategories' }],
+  });
 };
 
 // Update Category by ID
@@ -24,45 +26,43 @@ exports.updateCategoryById = async (id, updatedName) => {
   if (!category) {
     throw new Error('Category not found');
   }
-  
-  category.name = updatedName;  // Update category name
+
+  category.name = updatedName;
   await category.save();
   return category;
 };
 
-// Delete Category by ID
+// Delete Category by ID (also deletes associated subcategories)
 exports.deleteCategoryById = async (id) => {
   const category = await Category.findByPk(id);
   if (!category) {
     throw new Error('Category not found');
   }
-  
-  await category.destroy();  // Delete the category
+
+  // Delete all associated subcategories first
+  await Subcategory.destroy({ where: { categoryId: id } });
+
+  await category.destroy();
   return category;
 };
 
-// Add Option to Category (assuming `options` is an array column in the Category model)
-exports.addOptionToCategory = async (categoryId, option) => {
+// Add Subcategory to Category
+exports.addSubcategory = async (categoryId, subcategoryData) => {
   const category = await Category.findByPk(categoryId);
   if (!category) {
     throw new Error('Category not found');
   }
 
-  // Assuming 'options' is an array field, we can add the new option
-  category.options.push(option);
-  await category.save();
-  return category;
+  return await Subcategory.create({ ...subcategoryData, categoryId });
 };
 
-// Remove Option from Category
-exports.removeOptionFromCategory = async (categoryId, option) => {
-  const category = await Category.findByPk(categoryId);
-  if (!category) {
-    throw new Error('Category not found');
+// Remove Subcategory by ID
+exports.removeSubcategory = async (subcategoryId) => {
+  const subcategory = await Subcategory.findByPk(subcategoryId);
+  if (!subcategory) {
+    throw new Error('Subcategory not found');
   }
 
-  // Remove the option from the array
-  category.options = category.options.filter(opt => opt !== option);
-  await category.save();
-  return category;
+  await subcategory.destroy();
+  return subcategory;
 };

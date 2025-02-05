@@ -1,4 +1,5 @@
 const { createRequest, findRequestsByUser, findRequestById } = require('../db/queries/request.queries');
+const { sendPushNotification } = require('../utils/notification.utils');
 
 exports.createRequest = async (req, res) => {
   try {
@@ -8,6 +9,7 @@ exports.createRequest = async (req, res) => {
     }
 
     const request = await createRequest({ userId, type, description });
+    sendPushNotification({title:"New msg",message:"Hii"})
     res.status(201).json({ message: 'Request created successfully', request });
   } catch (error) {
     res.status(500).json({ error: error.message });

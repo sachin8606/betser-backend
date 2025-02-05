@@ -29,7 +29,7 @@ exports.updateAlertById = async (id, updatedData) => {
 exports.deleteAlertById = async (id) => {
   const alert = await Alert.findByPk(id);
   if (!alert) {
-    throw new Error('Alert not found');
+    throw new Error('Alert not found.');
   }
 
   await alert.destroy();

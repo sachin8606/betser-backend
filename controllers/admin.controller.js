@@ -11,6 +11,7 @@ const {
     acknowledgeHelpRequest,
     updateUserDetails,
     findAdminById,
+    updateAdmin,
 } = require('../db/queries/admin.queries');
 const jwt = require('jsonwebtoken');
 const XLSX = require('xlsx');
@@ -21,7 +22,6 @@ const generateToken = (user) => {
     };
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10h' });
 };
-
 
 
 // Admin login
@@ -62,6 +62,17 @@ exports.getAdminDetails = async (req, res) => {
             return res.status(200).json(admin);
         }
         return res.status(200).json(admin);
+    }catch(error){
+        res.status(400).json({ error: error.message });
+    }
+}
+
+// Update admin
+exports.updateAdmin = async (req,res) =>{
+    try {
+        const { id } = req.user;
+        await updateAdmin(id,req.body);
+        return res.status(200).json({msg:"success"})
     }catch(error){
         res.status(400).json({ error: error.message });
     }
@@ -121,6 +132,8 @@ exports.updateUserDetailsHandler = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 }
+
+
 
 // Get user details
 exports.getUserDetailsHandler = async (req, res) => {
