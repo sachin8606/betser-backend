@@ -22,8 +22,9 @@ const requestRoutes = require('./routes/request.routes');
 const adminRoutes = require('./routes/admin.routes');
 const categoryRoutes = require('./routes/category.routes');
 const alertRoutes = require('./routes/alert.routes');
-const emergencyServiceRoutes = require('./routes/emergencyServices.routes')
+const emergencyServiceRoutes = require('./routes/emergencyServices.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const communicationRoutes = require('./routes/communication.routes');
 const { initializeCron } = require('./crons/emergencyContacts');
 
 app.use('/api/user', userRoutes);
@@ -33,6 +34,7 @@ app.use('/api/category', categoryRoutes);
 app.use('/api/alert', alertRoutes);
 app.use('/api/emergencyService', emergencyServiceRoutes);
 app.use('/api/notification',notificationRoutes)
+app.use('/api/communication',communicationRoutes)
 
 // Health Check
 app.get('/', (req, res) => {

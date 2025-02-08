@@ -1,6 +1,7 @@
 const CommunicationLog = require('../../models/communication.model');
 const { Op } = require('sequelize');
-
+const User = require('../../models/user.model')
+const sequelize = require('../sequelize')
 // Create a new message
 exports.createMessage = async (messageData) => {
     return await CommunicationLog.create(messageData);
@@ -28,6 +29,16 @@ exports.getMessagesForUser = async (userId, userRole) => {
                 { receiverId: userId, receiverRole: userRole },
             ],
         },
-        order: [['createdAt', 'DESC']],
+        order: [['createdAt', 'ASC']],
     });
 };
+
+exports.getUserListChat = async () => {
+    const users = await User.findAll({
+        attributes: ["id", "firstName","lastName"],
+        order: [['createdAt', 'ASC']],
+      });
+  
+      console.log(users);
+      return users;
+}

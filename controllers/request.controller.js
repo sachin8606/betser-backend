@@ -9,7 +9,7 @@ exports.createRequest = async (req, res) => {
     }
 
     const request = await createRequest({ userId, type, description });
-    sendPushNotification({title:"New msg",message:"Hii"})
+    sendPushNotification({title:`New Request - ${type}`,message:description})
     res.status(201).json({ message: 'Request created successfully', request });
   } catch (error) {
     res.status(500).json({ error: error.message });

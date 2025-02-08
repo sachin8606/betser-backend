@@ -1,4 +1,5 @@
 let adminFcmTokens = {}
+let adminChat = {}
 
 const setAdminFcmToken = (token,id=null) => {
     console.log(token)
@@ -7,5 +8,9 @@ const setAdminFcmToken = (token,id=null) => {
 
 const getAdminFcmToken = (id=null) => {
     return adminFcmTokens["admin"]
+}
+
+const setChatAdmin = (id) => {
+    adminChat["id"] = id
 }
 module.exports = {setAdminFcmToken, getAdminFcmToken}

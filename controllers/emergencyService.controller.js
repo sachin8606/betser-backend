@@ -1,13 +1,13 @@
-const { createEmergencyServices, getAllEmergencyServices, deleteEmergencyService, updateEmergencyService, } = require('../db/queries/emergencyServices.queries');
+const { createEmergencyServices, getAllEmergencyServices, deleteEmergencyService, updateEmergencyService, findEmergencyServices, } = require('../db/queries/emergencyServices.queries');
 
 exports.createEmergencyService = async (req, res) => {
   try {
-    const { country, state, contact } = req.body;
-    if (!country || !state || !contact) {
+    const { country, state, contact, serviceName } = req.body;
+    if (!country || !state || !contact || !serviceName ) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
-    const service = await createEmergencyServices({ country, state, contact });
+    const service = await createEmergencyServices(req.body);
     res.status(201).json({ message: 'Service added successfully', service });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -22,6 +22,15 @@ exports.getEmergencyServices = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.findEmergencyServices = async (req,res) => {
+  try{
+    const services = await findEmergencyServices(req.body);
+    res.status(200).json({ message: 'Services fetched successfully', services });
+  }catch(error){
+    res.status(500).json({ error: error.message });
+  }
+}
 
 
 exports.deleteEmergencyService = async (req, res) => {

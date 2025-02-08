@@ -10,6 +10,14 @@ const EmergencyServices = sequelize.define('EmergencyServices', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  city:{
+    type:DataTypes.STRING,
+    allowNull:true
+  },
+  serviceName:{
+    type:DataTypes.STRING,
+    allowNull:false
+  },
   contact: {
     type: DataTypes.INTEGER,
     allowNull: false

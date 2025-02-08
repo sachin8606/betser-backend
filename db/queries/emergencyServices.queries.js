@@ -7,8 +7,8 @@ exports.createEmergencyServices = async (data) => {
 };
 
 // Get all Emergency Services
-exports.getAllEmergencyServices = async ({filter = {}, page = 1, limit = 10}) => {
-  
+exports.getAllEmergencyServices = async ({ filter = {}, page = 1, limit = 10 }) => {
+
   const query = {};
 
   if (filter.searchKeyword) {
@@ -27,14 +27,41 @@ exports.getAllEmergencyServices = async ({filter = {}, page = 1, limit = 10}) =>
   return {
     totalPages: Math.ceil(services.count / limit),
     currentPage: page,
-    services:services.rows,
+    services: services.rows,
   };
 };
 
+// Find emergency contacts
+exports.findEmergencyServices = async({ filter={}, page=1, limit=10 }) => {
+  const offset = (page - 1) * limit;
+  const queryFilter = {};
+
+  if (filter.country) {
+    queryFilter.country = { [Op.iLike]: `%${filter.country}%` };
+  }
+  if (filter.state) {
+    queryFilter.state = { [Op.iLike]: `%${filter.state}%` };
+  }
+  if (filter.city) {
+    queryFilter.city = { [Op.iLike]: `%${filter.city}%` };
+  }
+    const services = await EmergencyServices.findAndCountAll({
+      where: queryFilter,
+      limit,
+      offset,
+    });
+
+    return {
+      totalPages: Math.ceil(services.count / limit),
+      currentPage: page,
+      services: services.rows,
+    };
+}
+
 // Delete Emergency Service 
-exports.deleteEmergencyService = async(id) => {
+exports.deleteEmergencyService = async (id) => {
   const service = await EmergencyServices.findByPk(id);
-  if(!service){
+  if (!service) {
     throw new Error('Service not found.')
   }
   await service.destroy();
@@ -42,9 +69,9 @@ exports.deleteEmergencyService = async(id) => {
 }
 
 // Update Emergency Service 
-exports.updateEmergencyService = async(id,newData) => {
+exports.updateEmergencyService = async (id, newData) => {
   const service = await EmergencyServices.findByPk(id);
-  if(!service){
+  if (!service) {
     throw new Error('Service not found.')
   }
   await service.update(newData);

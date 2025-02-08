@@ -25,7 +25,6 @@ const sendPushNotification = async ({title,message}) =>{
       },
       token: getAdminFcmToken()
     };
-
     // ✅ Send the notification
     const response = await firebaseSdk.messaging().send(payload);
     console.log('Successfully sent message:', response);

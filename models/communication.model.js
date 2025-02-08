@@ -14,7 +14,7 @@ const Communication = sequelize.define('Communication', {
   },
   receiverId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     comment: 'ID of the receiver (can be an Admin or User)',
   },
   receiverRole: {
@@ -39,6 +39,7 @@ const Communication = sequelize.define('Communication', {
   },
 }, {
   timestamps: true,
+  tableName: "Communications"
 });
 
 module.exports = Communication;
