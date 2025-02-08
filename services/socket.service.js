@@ -1,25 +1,26 @@
 const Message = require('../models/communication.model');
 const { s3Upload } = require('../utils/s3Upload.utils');
 
-const users = {}; // Store users and their corresponding socket IDs
+const users = {};
 const admins = {};
 
 const socketService = (io) => {
   io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
 
-    // Handle user registration
+    //  user registration
     socket.on('register', ({ userId, role }) => {
-      if(role === "admin"){
+      if (role === "admin") {
         admins[userId] = socket.id
+        socket.emit("onlineUsers", Object.keys(users));
       }
-      else{
+      else {
         users[userId] = socket.id;
       }
       console.log(`User registered: ${userId}`);
-      io.emit('userStatus', { message: `${role} connected`, userId });
+      io.emit("userStatus", { userId, role, status: "online" });
       console.log('Active users:', users);
-      console.log('Active admins:',admins)
+      console.log('Active admins:', admins)
     });
 
     // Handle sending messages
@@ -28,7 +29,7 @@ const socketService = (io) => {
 
       try {
 
-        // Save the message in the database
+        // Save message
         const savedMessage = await Message.create({
           senderId,
           senderRole,
@@ -39,13 +40,12 @@ const socketService = (io) => {
           type,
         });
         let receiverSocketId;
-        // Emit the message to the receiver if they are online
-        if(receiverRole === "admin"){
+        if (receiverRole === "admin") {
           Object.values(admins).forEach((adminSocketId) => {
             io.to(adminSocketId).emit("receiveMessage", savedMessage);
           });
         }
-        else{
+        else {
           receiverSocketId = users[receiverId];
           if (receiverSocketId) {
             io.to(receiverSocketId).emit('receiveMessage', savedMessage);
@@ -55,10 +55,9 @@ const socketService = (io) => {
         }
         if (typeof callback === "function") {
           callback({ status: "success", message: "Message sent successfully", data: savedMessage });
-      }
+        }
       } catch (error) {
         console.error('Error saving message:', error);
-        // Error message with more context
       }
     });
 
@@ -68,6 +67,7 @@ const socketService = (io) => {
       if (disconnectedUser) {
         delete users[disconnectedUser];
         console.log(`User disconnected: ${disconnectedUser}`);
+        io.emit("userStatus", { userId: disconnectedUser, role: "user", status: "offline" });
       }
     });
   });
