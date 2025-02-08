@@ -12,13 +12,13 @@ exports.createUser = async (userData) => {
 exports.findUser = async (filter) => {
   return await User.findOne({
     where: filter,
-    include: EmergencyContact, 
+    attributes: { exclude: ['password'] }
   });
 };
 
 exports.findUserById = async (id) => {
   return await User.findByPk(id, {
-    attributes: { exclude: ['password'] },
+    attributes: { exclude: ['password','otp'] },
     include: EmergencyContact,
   });
 };
