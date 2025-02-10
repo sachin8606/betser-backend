@@ -4,8 +4,7 @@ exports.createNotification = async (req, res) => {
     const { senderId, receiverId, message, title,status } = req.body;
     try {
         const notificationData = {
-            senderId,
-            receiverId,
+            userId,
             message,
             title,
             status,
@@ -21,7 +20,7 @@ exports.createNotification = async (req, res) => {
 // Get all notifications
 exports.getNotifications = async (req, res) => {
     try {
-        const notifications = await notificationQueries.getNotifications(req.body.filter);
+        const notifications = await notificationQueries.getNotifications(req.body.filter || {});
         res.status(200).json({ message: "Fetched successfully", data: notifications });
     } catch (error) {
         res.status(500).json({ message: "Error", error: error.message });
@@ -42,11 +41,11 @@ exports.getNotificationForUser = async (req, res) => {
 
 // Update
 exports.updateNotification = async (req, res) =>{
-    const { id,data } = req.body;
+    const { id } = req.params;
 
     try {
-        const notification = await notificationQueries.updateNotification(userId,data);
-        res.status(200).json({ message: "Updated successfully", notification:  notification });
+        const notification = await notificationQueries.updateNotification(id,req.body);
+        res.status(200).json({ message: "Updated successfully"});
     } catch (error) {
         res.status(500).json({ message: "Error", error: error.message });
     }

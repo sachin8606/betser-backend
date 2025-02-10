@@ -11,7 +11,7 @@ const {
 const router = express.Router();
 
 router.post('/', authenticate, roleAuthentication(["supportAdmin", "superAdmin"]), addCategory);
-router.get('/', authenticate, getCategories);
+router.post('/getCategories', authenticate, getCategories);
 router.put('/:id', authenticate, roleAuthentication(["supportAdmin", "superAdmin"]), updateCategory);
 router.delete('/:id', authenticate, roleAuthentication(["supportAdmin", "superAdmin"]), deleteCategory);
 

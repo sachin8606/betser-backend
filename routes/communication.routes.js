@@ -10,6 +10,6 @@ router.post('/create',authenticate, createMessage);
 router.get('/between/:userId1/:userRole1/:userId2/:userRole2',authenticate, getMessagesBetweenUsers);
 router.get('/user/:userId/:userRole',authenticate, getMessagesForUser);
 router.get('/userListChat', authenticate,getUsersListChat );
-router.post('/upload',authenticate, upload.single('file'),uploadFile)
+router.post('/upload',authenticate, upload.single("file"),uploadFile)
 
 module.exports = router;

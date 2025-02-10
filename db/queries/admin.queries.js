@@ -28,7 +28,7 @@ exports.updateAdmin = async (id, newData) => {
   if (!admin) {
     throw new Error('Admin not found');
   }
-  if(newData?.fcm_token){
+  if (newData?.fcm_token) {
     setAdminFcmToken(newData.fcm_token)
   }
   await admin.update(newData);
@@ -46,8 +46,7 @@ exports.authenticateAdmin = async (email, password) => {
 };
 
 // Search Users
-exports.searchUsers = async ({filters = {}, page = 1, limit = 1}) => {
-
+exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 }, full = false) => {
   const query = {};
 
   if (filters.searchKeyword) {
@@ -58,6 +57,14 @@ exports.searchUsers = async ({filters = {}, page = 1, limit = 1}) => {
   }
 
   const offset = (page - 1) * limit;
+  if (full) {
+    const result = await User.findAll({
+      where: query,
+      attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id'],
+    });
+    console.log("result", result);
+    return result
+  }
 
   const result = await User.findAndCountAll({
     where: query,
@@ -81,12 +88,12 @@ exports.updateUserDetails = async (userId, updatedData) => {
     throw new Error('User not found');
   }
 
-  await user.update(updatedData); 
+  await user.update(updatedData);
   return user;
 };
 
 // Get All Users
-exports.getAllUsers = async ({filter = {}, page = 1, limit = 1}) => {
+exports.getAllUsers = async ({ filter = {}, page = 1, limit = 10 }) => {
   const offset = (page - 1) * limit;
 
   const users = await User.findAll({
@@ -108,7 +115,7 @@ exports.getAllUsers = async ({filter = {}, page = 1, limit = 1}) => {
 exports.getUserDetails = async (id) => {
   const user = await User.findByPk(id, {
     attributes: { exclude: ['password', 'createdAt'] },
-    include:EmergencyContact
+    include: EmergencyContact
   });
   if (!user) throw new Error('User not found');
   return user;

@@ -5,7 +5,7 @@ exports.createCategory = async (categoryData) => {
   return await Category.create(categoryData);
 };
 
-exports.findCategory = async (filter) => {
+exports.findCategory = async (filter = {}) => {
   return await Category.findAll({
     where: filter, 
   });

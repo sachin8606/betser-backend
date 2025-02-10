@@ -1,14 +1,15 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../db/sequelize'); // Import the Sequelize instance
+const sequelize = require('../db/sequelize');
+const Users = require('./user.model')
 
 const Notifications = sequelize.define('Notification', {
-  senderId: {
+  userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  receiverId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'id',
+    },
   },
   message: {
     type: DataTypes.STRING,
@@ -20,11 +21,15 @@ const Notifications = sequelize.define('Notification', {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM('pending', 'sent', 'failed'),
-    defaultValue: 'pending',
+    type: DataTypes.ENUM('unread','read'),
+    defaultValue: 'unread',
   },
 }, {
   timestamps: true,
 });
+
+// Define association
+Notifications.belongsTo(Users, { foreignKey: 'userId' });
+Users.hasMany(Notifications, { foreignKey: 'userId' });
 
 module.exports = Notifications;

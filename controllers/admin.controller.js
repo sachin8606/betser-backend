@@ -92,8 +92,8 @@ exports.searchUsersHandler = async (req, res) => {
 // Export users as CSV
 exports.exportUsers = async (req, res) => {
     try {
-        const filter = req.body.filter || {};
-        const users = await searchUsers(filter);
+        const filter = req.body || {};
+        const users = await searchUsers(filter,true);
         if (users.length === 0) {
             throw new Error('No users found with the applied filters.');
         }
@@ -132,8 +132,6 @@ exports.updateUserDetailsHandler = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 }
-
-
 
 // Get user details
 exports.getUserDetailsHandler = async (req, res) => {
