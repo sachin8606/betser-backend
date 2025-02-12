@@ -28,7 +28,6 @@ const Notifications = sequelize.define('Notification', {
   timestamps: true,
 });
 
-// Define association
 Notifications.belongsTo(Users, { foreignKey: 'userId' });
 Users.hasMany(Notifications, { foreignKey: 'userId' });
 

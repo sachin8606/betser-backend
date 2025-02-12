@@ -1,4 +1,4 @@
-const { createRequest, findRequestsByUser, findRequestById } = require('../db/queries/request.queries');
+const { createRequest, fetchRequests, updateRequestStatus } = require('../db/queries/request.queries');
 const { sendPushNotification } = require('../utils/notification.utils');
 const {createNotification}  = require('../db/queries/notification.queries')
 
@@ -20,29 +20,19 @@ exports.createRequest = async (req, res) => {
 
 exports.getRequests = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID is required to fetch requests.' });
-    }
-    const requests = await findRequestsByUser(userId);
+    const filter = req.body
+    const requests = await fetchRequests(filter);
     res.status(200).json({ message: 'Requests fetched successfully', requests });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
-exports.getRequestById = async (req, res) => {
+exports.updateRequest = async (req, res) => {
   try {
-    const requestId = req.params.requestId;
-    if (!requestId) {
-      return res.status(400).json({ message: 'Request ID is required.' });
-    }
-    const request = await findRequestById(requestId);
-    if (!request) {
-      return res.status(404).json({ message: 'Request not found.' });
-    }
-    res.status(200).json({ message: 'Request fetched successfully', request });
+    const {id, data} = req.body
+    const requests = await updateRequestStatus(id,data);
+    res.status(200).json({ message: 'Requests updated successfully', requests });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

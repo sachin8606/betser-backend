@@ -1,9 +1,10 @@
 const express = require('express');
-const { createRequest, getRequests, getRequestById } = require('../controllers/request.controller');
+const { createRequest, getRequests, updateRequest } = require('../controllers/request.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
+const { roleAuthentication } = require('../middlewares/role.middleware');
 const router = express.Router();
 
 router.post('/create', authenticate, createRequest);
-router.get('/', authenticate, getRequests);
-router.get('/getById', authenticate, getRequestById);
+router.post('/', authenticate, getRequests);
+router.post('/update', authenticate, roleAuthentication(["supportAdmin","superAdmin"]),updateRequest);
 module.exports = router;

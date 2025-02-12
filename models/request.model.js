@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db/sequelize');
-
-const Request = sequelize.define('Request', {
+const User = require('./user.model');
+const Requests = sequelize.define('Request', {
   userId: {
     type: DataTypes.INTEGER, 
     allowNull: false,
@@ -15,11 +15,14 @@ const Request = sequelize.define('Request', {
     type: DataTypes.TEXT,
   },
   status: {
-    type: DataTypes.ENUM('pending','progress','resolved'),
+    type: DataTypes.ENUM('pending','progress','resolved','failed'),
     defaultValue: 'pending',
   },
 }, {
   timestamps: true,
 });
 
-module.exports = Request;
+Requests.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Requests, { foreignKey: 'userId' });
+
+module.exports = Requests;
