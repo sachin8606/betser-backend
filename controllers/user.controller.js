@@ -47,7 +47,7 @@ exports.verifyOtpRegistrationMobile = async (req, res) => {
     if (user) {
       if (user.otp === otp) {
         await updateUserDetails(user.id, { isMobileVerified: true, otp: null })
-        res.status(200).json({ "message": "otp verified" })
+        res.status(200).json({ "message": "otp verified","id":user.id })
       }
       else {
         res.status(400).json({ "message": "otp did not match!" })
