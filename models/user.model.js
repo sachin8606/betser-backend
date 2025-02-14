@@ -10,38 +10,50 @@ const User = sequelize.define('User', {
   },
   firstName: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   lastName: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   countryCode:{
     type:DataTypes.INTEGER,
-    allowNull:false,
+    allowNull:true,
   },
   nickName: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     unique: true,
   },
   phone: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     unique:true
   },
   role: {
     type: DataTypes.STRING,
     defaultValue: 'user',
   },
+  avatar:{
+    type:DataTypes.STRING,
+    allowNull:true
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true,
+    defaultValue: false,
   },
+  isMobileVerified:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  isEmailVerified:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  }
 }, {
   timestamps: true,
 });

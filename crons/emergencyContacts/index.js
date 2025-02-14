@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const { getAllUsers } = require('../../db/queries/admin.queries');
 const { getAllAlerts, createAlert } = require('../../db/queries/alert.queries');
-const { EMERGENCY_CONTACTS_ALERT_TEMPLATE } = require('../../templates');
+const { EMERGENCY_CONTACTS_ALERT_TEMPLATE } = require('../../templates/alert.template');
 const { EMERGENCY_CONTACTS_ALERT } = require('../../types');
 const { countEmergencyContacts } = require('../../db/queries/user.queries');
 

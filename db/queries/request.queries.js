@@ -7,7 +7,8 @@ exports.createRequest = async (requestData) => {
 };
 
 // Get requests by user
-exports.fetchRequests = async ({ filters = {}, page = 1, limit = 10 }={}) => {
+exports.fetchRequests = async ({ filters = {}, page = 1, limit = 1 }={}) => {
+  console.log("dnd",filters,page,limit)
   const offset = (page - 1) * limit;
   const result = await Request.findAndCountAll({
     where:filters,

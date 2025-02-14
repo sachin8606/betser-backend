@@ -22,7 +22,7 @@ const Requests = sequelize.define('Request', {
   timestamps: true,
 });
 
-Requests.belongsTo(User, { foreignKey: 'userId' });
+Requests.belongsTo(User, { foreignKey: 'userId',onDelete: 'CASCADE'  });
 User.hasMany(Requests, { foreignKey: 'userId' });
 
 module.exports = Requests;

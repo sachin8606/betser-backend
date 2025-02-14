@@ -1,19 +1,28 @@
 const User = require('../../models/user.model');
 const EmergencyContact = require('../../models/emergencyContact.model');
 
-// Create a new user
 exports.createUser = async (userData) => {
   return await User.create(userData, {
     include: [EmergencyContact],
   });
 };
 
-// Find a user by filter (email, phone, etc.)
 exports.findUser = async (filter) => {
   return await User.findOne({
     where: filter,
     attributes: { exclude: ['password'] }
   });
+};
+
+exports.updateUserDetails = async (userId, updatedData) => {
+  const user = await User.findByPk(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  await user.update(updatedData);
+  return user;
 };
 
 exports.findUserById = async (id) => {

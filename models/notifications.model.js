@@ -28,7 +28,7 @@ const Notifications = sequelize.define('Notification', {
   timestamps: true,
 });
 
-Notifications.belongsTo(Users, { foreignKey: 'userId' });
+Notifications.belongsTo(Users, { foreignKey: 'userId',onDelete: 'CASCADE'  });
 Users.hasMany(Notifications, { foreignKey: 'userId' });
 
 module.exports = Notifications;

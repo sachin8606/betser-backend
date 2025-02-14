@@ -80,17 +80,6 @@ exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 }, full = fals
   };
 }
 
-// Update User Details
-exports.updateUserDetails = async (userId, updatedData) => {
-  const user = await User.findByPk(userId);
-
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  await user.update(updatedData);
-  return user;
-};
 
 // Get All Users
 exports.getAllUsers = async ({ filter = {}, page = 1, limit = 10 }) => {

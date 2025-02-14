@@ -9,7 +9,6 @@ const {
     sendNotificationOrMessage,
     getAllHelpRequests,
     acknowledgeHelpRequest,
-    updateUserDetails,
     findAdminById,
     updateAdmin,
 } = require('../db/queries/admin.queries');
@@ -121,17 +120,6 @@ exports.exportUsers = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
-
-// Update user details
-exports.updateUserDetailsHandler = async (req, res) => {
-    try {
-        const { id, data } = req.body;
-        const updatedUser = await updateUserDetails(id, data);
-        res.status(200).json(updatedUser);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-}
 
 // Get user details
 exports.getUserDetailsHandler = async (req, res) => {

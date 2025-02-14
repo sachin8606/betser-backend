@@ -1,8 +1,13 @@
-const { createUser, findUserById, getEmergencyContacts, deleteEmergencyContactFromUser, findUser, addEmergencyContactsToUser, countEmergencyContacts } = require('../db/queries/user.queries');
+const { createUser, findUserById, getEmergencyContacts, deleteEmergencyContactFromUser, findUser, addEmergencyContactsToUser, countEmergencyContacts, updateUserDetails } = require('../db/queries/user.queries');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { EMERGENCY_CONTACTS_ALERT } = require('../types');
 const { deleteAlertsByType } = require('../db/queries/alert.queries');
+const { where, fn, col, Op } = require('sequelize');
+const { generateOtp } = require('../utils/math.utils');
+const { sendSMS } = require('../services/sms.service');
+const accountRegistrationOtp = require('../templates/sms.template');
+const { returnUsers } = require('../utils/returnBody.utils');
 const generateToken = (user) => {
   const payload = {
     id: user.id,
@@ -12,33 +17,74 @@ const generateToken = (user) => {
 };
 
 exports.registerUser = async (req, res) => {
-  const { firstName, lastName, nickName, email, phone,countryCode } = req.body;
+  const { phone, countryCode } = req.body;
 
   try {
-    const userExists = await findUser({ email });
+    const filterObj = {
+      [Op.or]: [
+        where(fn('CONCAT', col('countryCode'), col('phone')), `${countryCode}${phone}`)
+      ]
+    };
+
+    const userExists = await findUser(filterObj);
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
-
-    const user = await createUser({ firstName, lastName, nickName, phone, email,countryCode });
-    res.status(201).json({ message: 'User created successfully'});
+    const otp = generateOtp();
+    await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp))
+    await createUser({ phone, countryCode, otp })
+    return res.status(201).json({ message: 'Otp sent successfully.' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error('Error in registerUser:', err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
+exports.verifyOtpRegistrationMobile = async (req, res) => {
+  try {
+    const { countryCode, phone, otp } = req.body;
+    const user = await findUser({ countryCode, phone })
+    if (user) {
+      if (user.otp === otp) {
+        await updateUserDetails(user.id, { isMobileVerified: true, otp: null })
+        res.status(200).json({ "message": "otp verified" })
+      }
+      else {
+        res.status(400).json({ "message": "otp did not match!" })
+      }
+    }
+    else {
+      res.status(400).json({ "message": "User not found" })
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Error', error: err.message });
+  }
+}
+
+// verify Email
+// exports.verifyEmail = async() => {
+//   try{
+
+//   }catch(err){
+//     res.status(500).json({ message: 'Error', error: err.message });
+//   }
+// }
 
 exports.loginUserMail = async (req, res) => {
   const { email } = req.body;
 
   try {
     const user = await findUser({ email });
-    if (user) {
-      const otp = Math.floor(1000 + Math.random() * 9000);
-      await user.update({otp})
-      res.json({otp:otp, message: 'otp generated' });
+    if (user.isActive) {
+      if (user) {
+        const otp = generateOtp()
+        await user.update({ otp })
+        res.json({ otp: otp, message: 'otp generated' });
+      } else {
+        res.status(401).json({ message: 'Invalid credentials' });
+      }
     } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: 'Account not active.' });
     }
   } catch (err) {
     console.log(err)
@@ -46,17 +92,43 @@ exports.loginUserMail = async (req, res) => {
   }
 };
 
+exports.updateUserDetailsHandler = async (req, res) => {
+  try {
+    let { id, data, flag } = req.body;
+    if (data.isActive) {
+      return res.status(400).json({ "message": "error" })
+    }
+    if (flag === "registration") {
+      data = { ...data, isActive: true }
+    }
+    const updatedUser = await updateUserDetails(id, data);
+    res.status(200).json({ "message": "success", "user": updatedUser });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
 
 exports.loginUserMobile = async (req, res) => {
-  const { phone } = req.body;
+  const { countryCode, phone } = req.body;
 
   try {
-    const user = await findUser({ phone });
+    const filterObj = {
+      [Op.or]: [
+        where(fn('CONCAT', col('countryCode'), col('phone')), `${countryCode}${phone}`)
+      ]
+    };
+    const user = await findUser(filterObj);
     if (user) {
-    const otp = Math.floor(1000 + Math.random() * 9000);
-    await user.update({otp})
-    res.json({otp:otp, message: 'otp generated' });
-    } 
+      if (user.isActive) {
+        const otp = generateOtp()
+        await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp))
+        await user.update({ otp })
+        res.json({ otp: otp, message: 'otp generated' });
+      }
+      else {
+        res.status(401).json({ message: 'Account not active.', id: user.id });
+      }
+    }
     else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -67,20 +139,26 @@ exports.loginUserMobile = async (req, res) => {
 };
 
 exports.verifyOtp = async (req, res) => {
-  const { phone, otp } = req.body;
+  const {countryCode, phone, otp } = req.body;
   try {
-    const user = await findUser({phone});
+    const filterObj = {
+      [Op.or]: [
+        where(fn('CONCAT', col('countryCode'), col('phone')), `${countryCode}${phone}`)
+      ]
+    };
+    const user = await findUser(filterObj);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     if (user.otp === otp) {
-      user.otp = undefined
-      return res.status(200).json({ message: 'success', token: generateToken(user),user });
+      user.otp = null
+      await user.update()
+      return res.status(200).json({ message: 'success', token: generateToken(user),user: returnUsers(user) });
     } else {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
-  }catch(err){
-    res.json(500).json({message:'Server error', error:err.message})
+  } catch (err) {
+    res.json(500).json({ message: 'Server error', error: err.message })
   }
 }
 
@@ -100,7 +178,6 @@ exports.addEmergencyContacts = async (req, res) => {
   }
 };
 
-
 exports.deleteEmergencyContact = async (req, res) => {
   const { contactId } = req.body;
   const userId = req.user.id;
@@ -112,7 +189,6 @@ exports.deleteEmergencyContact = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-
 
 exports.getEmergencyContacts = async (req, res) => {
   const userId = req.user.id;
