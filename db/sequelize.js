@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 let sequelize;
-if (process.env.MODE === 'PRODUCTION') {
+if (process.env.MODE === 'production') {
   sequelize = new Sequelize(process.env.POSTGRES_URI, {
     dialect: 'postgres',
     dialectOptions: {
