@@ -18,6 +18,7 @@
     "password": "Aust1n24$",
     "database": "postgres",
     "host": "behelp.c7cg6ews0pdl.ap-south-1.rds.amazonaws.com",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "ssl": true
   }
 }
