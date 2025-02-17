@@ -17,7 +17,7 @@
     "username": "postgres",
     "password": "Aust1n24$",
     "database": "postgres",
-    "host": "127.0.0.1",
+    "host": "behelp.c7cg6ews0pdl.ap-south-1.rds.amazonaws.com",
     "dialect": "postgres"
   }
 }
