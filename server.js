@@ -7,7 +7,6 @@ dotenv.config();
 const { Server } = require('socket.io');
 const socketService = require('./services/socket.service');
 
-console.log(process.env)
 const app = express();
 const PORT = process.env.PORT || 8000;
 
