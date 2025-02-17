@@ -2,6 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db/sequelize');
 
 const EmergencyContact = sequelize.define('EmergencyContact', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -11,7 +16,7 @@ const EmergencyContact = sequelize.define('EmergencyContact', {
     allowNull: false,
   },
   userId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: 'Users',
@@ -20,7 +25,7 @@ const EmergencyContact = sequelize.define('EmergencyContact', {
     onDelete: 'CASCADE'
   },
 }, {
-  timestamps: false,
+  timestamps: true,
 });
 
 module.exports = EmergencyContact;

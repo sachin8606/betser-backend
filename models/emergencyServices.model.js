@@ -2,6 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db/sequelize');
 
 const EmergencyServices = sequelize.define('EmergencyServices', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
   country: {
     type: DataTypes.STRING,
     allowNull: false,

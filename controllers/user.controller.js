@@ -1,6 +1,5 @@
-const { createUser, findUserById, getEmergencyContacts, deleteEmergencyContactFromUser, findUser, addEmergencyContactsToUser, countEmergencyContacts, updateUserDetails } = require('../db/queries/user.queries');
+const { createUser, getEmergencyContacts, deleteEmergencyContactFromUser, findUser, addEmergencyContactsToUser, countEmergencyContacts, updateUserDetails, findUserById, deleteUser } = require('../db/queries/user.queries');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const { EMERGENCY_CONTACTS_ALERT } = require('../types');
 const { deleteAlertsByType } = require('../db/queries/alert.queries');
 const { where, fn, col, Op } = require('sequelize');
@@ -8,6 +7,7 @@ const { generateOtp } = require('../utils/math.utils');
 const { sendSMS } = require('../services/sms.service');
 const accountRegistrationOtp = require('../templates/sms.template');
 const { returnUsers } = require('../utils/returnBody.utils');
+const { createDeletedUser } = require('../db/queries/deletedUsers.queries');
 const generateToken = (user) => {
   const payload = {
     id: user.id,
@@ -27,16 +27,19 @@ exports.registerUser = async (req, res) => {
     };
 
     const userExists = await findUser(filterObj);
-    if (userExists) {
+    if (userExists && userExists.isActive) {
       return res.status(400).json({ message: 'User already exists' });
     }
     const otp = generateOtp();
     await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp))
+    if (userExists && !userExists.isActive) {
+      return res.status(200).json({ message: 'Otp sent successfully.' })
+    }
     await createUser({ phone, countryCode, otp })
-    return res.status(201).json({ message: 'Otp sent successfully.' });
+    return res.status(200).json({ "message": 'Otp sent successfully.' });
   } catch (err) {
     console.error('Error in registerUser:', err);
-    return res.status(500).json({ message: 'Server error', error: err.message });
+    return res.status(500).json({ "message": 'Server error', error: err.message });
   }
 };
 
@@ -47,7 +50,7 @@ exports.verifyOtpRegistrationMobile = async (req, res) => {
     if (user) {
       if (user.otp === otp) {
         await updateUserDetails(user.id, { isMobileVerified: true, otp: null })
-        res.status(200).json({ "message": "otp verified","id":user.id })
+        res.status(200).json({ "message": "otp verified", "id": user.id })
       }
       else {
         res.status(400).json({ "message": "otp did not match!" })
@@ -123,7 +126,7 @@ exports.loginUserMobile = async (req, res) => {
         const otp = generateOtp()
         await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp))
         await user.update({ otp })
-        res.json({ otp: otp, message: 'otp generated' });
+        res.json({ message: 'otp generated' });
       }
       else {
         res.status(401).json({ message: 'Account not active.', id: user.id });
@@ -139,7 +142,7 @@ exports.loginUserMobile = async (req, res) => {
 };
 
 exports.verifyOtp = async (req, res) => {
-  const {countryCode, phone, otp } = req.body;
+  const { countryCode, phone, otp } = req.body;
   try {
     const filterObj = {
       [Op.or]: [
@@ -153,12 +156,33 @@ exports.verifyOtp = async (req, res) => {
     if (user.otp === otp) {
       user.otp = null
       await user.update()
-      return res.status(200).json({ message: 'success', token: generateToken(user),user: returnUsers(user) });
+      return res.status(200).json({ message: 'success', token: generateToken(user), user: returnUsers(user) });
     } else {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
   } catch (err) {
     res.json(500).json({ message: 'Server error', error: err.message })
+  }
+}
+
+exports.deleteUserFun = async (req, res) => {
+  try {
+    const user = await findUserById(req.user.id);
+    console.log("This is user : ",user.toJSON())
+    if (!user) {
+      throw new Error("User not found")
+    }
+    const createdDeletedUser = await createDeletedUser(user.toJSON());
+    if (!createDeletedUser) {
+      throw new Error("Failed")
+    }
+    const deletedCount = await deleteUser(req.user.id)
+    if (deletedCount === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Internal Server Error" });
   }
 }
 

@@ -2,6 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db/sequelize'); // Import the Sequelize instance
 
 const Communication = sequelize.define('Communication', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
   senderId: {
     type: DataTypes.INTEGER,
     allowNull: false,

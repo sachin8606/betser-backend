@@ -1,0 +1,23 @@
+{
+  "DEVELOPMENT": {
+    "username": "postgres",
+    "password": "0000",
+    "database": "betser",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "PRODUCTION": {
+    "username": "postgres",
+    "password": "Aust1n24$",
+    "database": "betser",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}

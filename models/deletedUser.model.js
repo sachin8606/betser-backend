@@ -1,17 +1,11 @@
-const { DataTypes, UUIDV4 } = require('sequelize');
-const bcrypt = require('bcryptjs');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../db/sequelize');
-const EmergencyContact = require('./emergencyContact.model');
 
-const User = sequelize.define('User', {
+const DeletedUser = sequelize.define('DeletedUser', {
   id: {
-    type: DataTypes.UUID,   
-    defaultValue: UUIDV4,
-    primaryKey: true,
-  },
-  otp: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
   },
   firstName: {
     type: DataTypes.STRING,
@@ -32,12 +26,10 @@ const User = sequelize.define('User', {
   email: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true,
   },
   phone: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique:true
   },
   role: {
     type: DataTypes.STRING,
@@ -63,13 +55,4 @@ const User = sequelize.define('User', {
   timestamps: true,
 });
 
-User.hasMany(EmergencyContact, {
-  foreignKey: 'userId',
-  onDelete: 'CASCADE',
-});
-EmergencyContact.belongsTo(User, {
-  foreignKey: 'userId',
-});
-
-
-module.exports = User;
+module.exports = DeletedUser;

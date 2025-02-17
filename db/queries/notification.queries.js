@@ -13,7 +13,7 @@ exports.getNotifications = async ({ filters = {}, page = 1, limit = 10 }) => {
   const result = await Notification.findAndCountAll({
     include: {
       model: User,
-      attributes: ['firstName','lastName'],
+      attributes: ['firstName','lastName','countryCode','phone'],
     },
     order: [['createdAt', 'DESC']],
     // limit,

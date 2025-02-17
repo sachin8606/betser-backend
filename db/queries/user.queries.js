@@ -90,3 +90,7 @@ exports.getEmergencyContacts = async (userId) => {
 exports.countEmergencyContacts = async (filter) => {
   return await EmergencyContact.count(filter)
 }
+
+exports.deleteUser = async(id) => {
+  return await User.destroy({where:{id}});
+}

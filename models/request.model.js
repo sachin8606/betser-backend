@@ -2,8 +2,13 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db/sequelize');
 const User = require('./user.model');
 const Requests = sequelize.define('Request', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
   userId: {
-    type: DataTypes.INTEGER, 
+    type: DataTypes.UUID, 
     allowNull: false,
     references: { model: 'Users', key: 'id' },
   },
@@ -17,6 +22,14 @@ const Requests = sequelize.define('Request', {
   status: {
     type: DataTypes.ENUM('pending','progress','resolved','failed'),
     defaultValue: 'pending',
+  },
+  mediaUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  mediaType: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 }, {
   timestamps: true,

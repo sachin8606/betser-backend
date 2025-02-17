@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, addEmergencyContacts, getEmergencyContacts, deleteEmergencyContact, loginUserMobile, loginUserMail, verifyOtp, verifyOtpRegistrationMobile, updateUserDetailsHandler } = require('../controllers/user.controller');
+const { registerUser, loginUser, addEmergencyContacts, getEmergencyContacts, deleteEmergencyContact, loginUserMobile, loginUserMail, verifyOtp, verifyOtpRegistrationMobile, updateUserDetailsHandler, deleteUserFun } = require('../controllers/user.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
@@ -13,5 +13,5 @@ router.post('/loginMail', loginUserMail);
 router.post('/add-emergency-contact', authenticate, addEmergencyContacts);
 router.post('/emergency-contacts', authenticate, getEmergencyContacts);
 router.post('/delete-emergency-contact', authenticate, deleteEmergencyContact);
-
+router.get('/delete',authenticate,deleteUserFun)
 module.exports = router;

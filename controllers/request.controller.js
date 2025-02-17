@@ -4,14 +4,15 @@ const {createNotification}  = require('../db/queries/notification.queries')
 
 exports.createRequest = async (req, res) => {
   try {
-    const { userId, type, description } = req.body;
-    if (!userId || !type || !description) {
+    const {id} = req.user
+    const { type, description } = req.body;
+    if (!id || !type || !description) {
       return res.status(400).json({ message: 'All fields are required: userId, type, and details.' });
     }
 
-    const request = await createRequest({ userId, type, description });
+    const request = await createRequest({ userId:id, type, description });
     sendPushNotification({title:`New Request - ${type}`,message:description})
-    await createNotification({userId,"title":type+" request",message:description})
+    await createNotification({"userId":id,"title":type+" request",message:description})
     res.status(201).json({ message: 'Request created successfully', request });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -24,6 +25,7 @@ exports.getRequests = async (req, res) => {
     const requests = await fetchRequests(filter);
     res.status(200).json({ message: 'Requests fetched successfully', requests });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: error.message });
   }
 };

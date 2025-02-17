@@ -46,13 +46,15 @@ exports.authenticateAdmin = async (email, password) => {
 };
 
 // Search Users
-exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 }, full = false) => {
+exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 } = {}, full = false) => {
   const query = {};
 
   if (filters.searchKeyword) {
     query[Op.or] = [
       { phone: { [Op.iLike]: `%${filters.searchKeyword}%` } },
-      { firstName: { [Op.iLike]: `%${filters.searchKeyword}%` } }
+      { firstName: { [Op.iLike]: `%${filters.searchKeyword}%` } },
+      { lastName: { [Op.iLike]: `%${filters.searchKeyword}%` } },
+      { email: { [Op.iLike]: `%${filters.searchKeyword}%` } }
     ];
   }
 
@@ -73,10 +75,13 @@ exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 }, full = fals
     offset,
   });
 
+  const totalRecords = await User.count({ where: query });
+
   return {
     totalPages: Math.ceil(result.count / limit),
     currentPage: page,
     users: result.rows,
+    totalRecords
   };
 }
 
@@ -97,6 +102,7 @@ exports.getAllUsers = async ({ filter = {}, page = 1, limit = 10 }) => {
     totalPages: Math.ceil(totalRecords / limit),
     currentPage: page,
     users,
+    totalRecords
   };
 };
 
