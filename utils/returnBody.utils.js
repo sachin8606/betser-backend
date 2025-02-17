@@ -10,6 +10,7 @@ exports.returnUsers = (user) => {
         "isMobileVerified":user?.isMobileVerified,
         "isEmailVerified":user?.isEmailVerified,
         "createdAt":user?.createdAt,
-        "updatedAt":user?.updatedAt
+        "updatedAt":user?.updatedAt,
+        "avatar":user?.avatar
     }
 }
