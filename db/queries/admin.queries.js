@@ -62,7 +62,7 @@ exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 } = {}, full =
   if (full) {
     const result = await User.findAll({
       where: query,
-      attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id'],
+      attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id','countryCode'],
     });
     console.log("result", result);
     return result

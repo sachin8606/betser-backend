@@ -26,6 +26,7 @@ const emergencyServiceRoutes = require('./routes/emergencyServices.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const communicationRoutes = require('./routes/communication.routes');
 const deletedUserRoutes = require('./routes/deletedUser.routes');
+const settingRoutes = require('./routes/setting.routes');
 const { initializeCron } = require('./crons/emergencyContacts');
 
 app.use('/api/user', userRoutes);
@@ -37,6 +38,7 @@ app.use('/api/emergencyService', emergencyServiceRoutes);
 app.use('/api/notification',notificationRoutes)
 app.use('/api/communication',communicationRoutes)
 app.use('/api/deletedUser',deletedUserRoutes)
+app.use('/api/settings',settingRoutes)
 
 // Health Check
 app.get('/', (req, res) => {

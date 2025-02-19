@@ -6,12 +6,9 @@ const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
 const client = twilio(accountSid, authToken);
 
-// @param {string} to - Recipient's phone number (e.g., '+91XXXXXXXXXX')
-// @param {string} message - Message content
-// @returns {Promise<string>} - Message SID if successful
-
 const sendSMS = async (to, message) => {
   try {
+    console.log(to,message)
     const response = await client.messages.create({
       body: message,
       from: twilioPhoneNumber,

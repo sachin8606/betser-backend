@@ -5,9 +5,9 @@ const { deleteAlertsByType } = require('../db/queries/alert.queries');
 const { where, fn, col, Op } = require('sequelize');
 const { generateOtp } = require('../utils/math.utils');
 const { sendSMS } = require('../services/sms.service');
-const accountRegistrationOtp = require('../templates/sms.template');
 const { returnUsers } = require('../utils/returnBody.utils');
 const { createDeletedUser } = require('../db/queries/deletedUsers.queries');
+const {accountRegistrationOtp,addTrustedContactTemplate} = require('../templates/sms.template')
 const generateToken = (user) => {
   const payload = {
     id: user.id,
@@ -168,7 +168,7 @@ exports.verifyOtp = async (req, res) => {
 exports.deleteUserFun = async (req, res) => {
   try {
     const user = await findUserById(req.user.id);
-    console.log("This is user : ",user.toJSON())
+    console.log("This is user : ", user.toJSON())
     if (!user) {
       throw new Error("User not found")
     }
@@ -187,16 +187,31 @@ exports.deleteUserFun = async (req, res) => {
 }
 
 exports.addEmergencyContacts = async (req, res) => {
-  const contacts = req.body.contacts; // Expecting an array of contacts [{ name, phone }, ...]
+  const contacts = req.body.contacts;
   const userId = req.user.id;
 
   try {
-    const updatedContacts = await addEmergencyContactsToUser(userId, contacts);
-    const contactCount = await countEmergencyContacts({ where: { userId } });
-    if (contactCount >= 5) {
-      await deleteAlertsByType(userId, EMERGENCY_CONTACTS_ALERT);
+    if (contacts && contacts.length > 0) {
+      const updatedContacts = await addEmergencyContactsToUser(userId, contacts);
+      const contactCount = await countEmergencyContacts({ where: { userId } });
+      const user = await findUserById(userId);
+      if (user) {
+        const username = user.firstName + " " + user.lastName;
+        const userMobile = "+" + user.countryCode + " " + user.phone;
+        if (contactCount >= 5) {
+          await deleteAlertsByType(userId, EMERGENCY_CONTACTS_ALERT);
+        }
+
+        contacts.map(async (item, index) => {
+          await sendSMS(`+${item.phone}`,addTrustedContactTemplate(username, userMobile))
+        })
+        res.status(201).json({ message: "Emergency contacts added", data: updatedContacts });
+      }
+      else {
+        res.status(400).json({ message: "User not found." });
+      }
+
     }
-    res.status(201).json({ message: "Emergency contacts added", data: updatedContacts });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
