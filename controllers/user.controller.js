@@ -13,7 +13,7 @@ const generateToken = (user) => {
     id: user.id,
     role: user.role
   };
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10h' });
+  return jwt.sign(payload, process.env.JWT_SECRET);
 };
 
 exports.registerUser = async (req, res) => {

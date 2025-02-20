@@ -13,5 +13,5 @@ router.post('/loginMail', loginUserMail);
 router.post('/add-emergency-contact', authenticate, addEmergencyContacts);
 router.post('/emergency-contacts', authenticate, getEmergencyContacts);
 router.post('/delete-emergency-contact', authenticate, deleteEmergencyContact);
-router.get('/delete',authenticate,deleteUserFun)
+router.delete('/delete',authenticate,deleteUserFun)
 module.exports = router;
