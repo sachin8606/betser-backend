@@ -35,7 +35,7 @@ exports.getMessagesForUser = async (userId, userRole) => {
 
 exports.getUserListChat = async () => {
     const users = await User.findAll({
-        attributes: ["id", "firstName","lastName"],
+        attributes: ["id", "firstName","lastName","avatar"],
         order: [['createdAt', 'ASC']],
       });
   

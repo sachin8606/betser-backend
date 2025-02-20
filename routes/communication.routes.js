@@ -1,5 +1,5 @@
 const express = require('express');
-const multer = require('multer'); // For handling media uploads
+const multer = require('multer');
 const { createMessage, getMessagesBetweenUsers, getMessagesForUser, getUsersListChat, uploadFile } = require('../controllers/communication.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
 const { s3Upload } = require('../utils/s3Upload.utils');

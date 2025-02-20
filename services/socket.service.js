@@ -50,7 +50,7 @@ const socketService = (io) => {
           if (receiverSocketId) {
             io.to(receiverSocketId).emit('receiveMessage', savedMessage);
           } else {
-            console.log(`Receiver ${receiverKey} is not online.`);
+            console.log(`Receiver ${receiverSocketId} is not online.`);
           }
         }
         if (typeof callback === "function") {
