@@ -87,7 +87,13 @@ exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 } = {}, full =
 
 
 // Get All Users
-exports.getAllUsers = async ({ filter = {}, page = 1, limit = 10 }) => {
+exports.getAllUsers = async ({ filter = {}, page = 1, limit = 10} = {},full = false) => {
+  if(full){
+    const users = await User.findAll({
+      where: filter,
+    });
+    return users
+  }
   const offset = (page - 1) * limit;
 
   const users = await User.findAll({

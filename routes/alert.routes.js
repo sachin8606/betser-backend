@@ -13,7 +13,7 @@ const { authenticate } = require('../middlewares/auth.middleware');
 const { roleAuthentication } = require('../middlewares/role.middleware');
 const router = express.Router();
 
-router.get('/user/:userId', authenticate, getUserAlerts);
+router.get('/', authenticate, getUserAlerts);
 router.post('/getAlerts',authenticate,getAllAlerts)
 router.get('/:alertId', authenticate,roleAuthentication(["supportAdmin","superAdmin"]), getAlertById);
 router.put('/:alertId/read', authenticate,roleAuthentication(["supportAdmin","superAdmin"]), markAlertAsRead);

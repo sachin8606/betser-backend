@@ -25,7 +25,7 @@ const {
   
   exports.getUserAlerts = async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(400).json({ message: 'User ID is required to fetch alerts.' });
       }

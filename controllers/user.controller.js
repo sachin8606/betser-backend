@@ -1,6 +1,6 @@
 const { createUser, getEmergencyContacts, deleteEmergencyContactFromUser, findUser, addEmergencyContactsToUser, countEmergencyContacts, updateUserDetails, findUserById, deleteUser } = require('../db/queries/user.queries');
 const jwt = require('jsonwebtoken');
-const { EMERGENCY_CONTACTS_ALERT } = require('../types');
+const {  TRUSTED_CONTACTS_ALERT } = require('../types');
 const { deleteAlertsByType } = require('../db/queries/alert.queries');
 const { where, fn, col, Op } = require('sequelize');
 const { generateOtp } = require('../utils/math.utils');
@@ -198,8 +198,9 @@ exports.addEmergencyContacts = async (req, res) => {
       if (user) {
         const username = user.firstName + " " + user.lastName;
         const userMobile = "+" + user.countryCode + " " + user.phone;
-        if (contactCount >= 5) {
-          await deleteAlertsByType(userId, EMERGENCY_CONTACTS_ALERT);
+        if (contactCount >= 1) {
+          console.log(userId,TRUSTED_CONTACTS_ALERT)
+          await deleteAlertsByType(userId, TRUSTED_CONTACTS_ALERT);
         }
 
         contacts.map(async (item, index) => {
