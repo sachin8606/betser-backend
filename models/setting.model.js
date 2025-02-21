@@ -9,6 +9,10 @@ const Settings = sequelize.define('Setting', {
   help_care_number: {
     type: DataTypes.STRING, 
     allowNull: true,
+  },
+  learnUrl:{
+    type: DataTypes.STRING, 
+    allowNull: true,
   }
 }, {
   timestamps: true,
