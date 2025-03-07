@@ -7,7 +7,7 @@ const { generateOtp } = require('../utils/math.utils');
 const { sendSMS } = require('../services/sms.service');
 const { returnUsers } = require('../utils/returnBody.utils');
 const { createDeletedUser } = require('../db/queries/deletedUsers.queries');
-const {accountRegistrationOtp,addTrustedContactTemplate} = require('../templates/sms.template')
+const {accountRegistrationOtp,addTrustedContactTemplate, loginOtpTemplate} = require('../templates/sms.template')
 const generateToken = (user) => {
   const payload = {
     id: user.id,
@@ -125,7 +125,7 @@ exports.loginUserMobile = async (req, res) => {
     if (user) {
       if (user.isActive) {
         const otp = generateOtp()
-        await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp))
+        await sendSMS(`+${countryCode}${phone}`, loginOtpTemplate(otp))
         await user.update({ otp })
         res.json({ message: 'otp generated' });
       }
@@ -169,11 +169,11 @@ exports.verifyOtp = async (req, res) => {
 exports.deleteUserFun = async (req, res) => {
   try {
     const user = await findUserById(req.user.id);
-    console.log("This is user : ", user.toJSON())
+    const userCopy = user;
     if (!user) {
       throw new Error("User not found")
     }
-    const createdDeletedUser = await createDeletedUser(user.toJSON());
+    const createdDeletedUser = await createDeletedUser(userCopy.toJSON());
     if (!createDeletedUser) {
       throw new Error("Failed")
     }
