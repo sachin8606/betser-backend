@@ -33,6 +33,7 @@ exports.registerUser = async (req, res) => {
     const otp = generateOtp();
     await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp))
     if (userExists && !userExists.isActive) {
+      await updateUserDetails(userExists.id, { otp: otp })
       return res.status(200).json({ message: 'Otp sent successfully.' })
     }
     await createUser({ phone, countryCode, otp })
