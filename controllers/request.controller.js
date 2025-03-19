@@ -2,10 +2,16 @@ const { createRequest, fetchRequests, updateRequestStatus } = require('../db/que
 const { sendPushNotification } = require('../utils/notification.utils');
 const {createNotification}  = require('../db/queries/notification.queries')
 
+const generateRequestId = (reqType) => { 
+  const prefix = reqType.substring(0, 3).toUpperCase(); 
+  const randomNumber = Math.floor(100000 + Math.random() * 900000); 
+  return `${prefix}-${randomNumber}`;
+};
+
 exports.createRequest = async (req, res) => {
   try {
     const {id} = req.user
-    const request = await createRequest({ userId:id, ...req.body });
+    const request = await createRequest({"id":generateRequestId(req.body.type), "userId":id, ...req.body });
     sendPushNotification({title:`New Request - ${req.body.type}`,message:req.body.description})
     await createNotification({"userId":id,"title":req.body.type+" request",message:req.body.description})
     res.status(201).json({ message: 'Request created successfully', request });

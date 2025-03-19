@@ -3,8 +3,7 @@ const sequelize = require('../db/sequelize');
 const User = require('./user.model');
 const Requests = sequelize.define('Request', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING,
     primaryKey: true
   },
   userId: {
@@ -13,7 +12,7 @@ const Requests = sequelize.define('Request', {
     references: { model: 'Users', key: 'id' },
   },
   type: {
-    type: DataTypes.ENUM('Emergency', 'General'),
+    type: DataTypes.ENUM('Emergency', 'General','SOS'),
     allowNull: false,
   },
   description: {

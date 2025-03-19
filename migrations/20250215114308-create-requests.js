@@ -4,7 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Requests', {
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.STRING,
         primaryKey: true,
         allowNull: false,
       },
@@ -18,7 +18,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       type: {
-        type: Sequelize.ENUM('Emergency', 'General'),
+        type: Sequelize.ENUM('Emergency', 'General','SOS'),
         allowNull: false,
       },
       description: {
@@ -32,7 +32,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      mediaType:{
+      mediaType: {
         type: Sequelize.STRING,
         allowNull: true,
       },
