@@ -106,7 +106,7 @@ exports.updateUserDetailsHandler = async (req, res) => {
       data = { ...data, isActive: true }
     }
     const updatedUser = await updateUserDetails(id, data);
-    res.status(200).json({ "message": "success", "user": updatedUser });
+    res.status(200).json({ "message": "success", "user": updatedUser, "token":generateToken(updatedUser) });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
