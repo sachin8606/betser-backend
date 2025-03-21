@@ -28,7 +28,7 @@ const Communication = sequelize.define('Communication', {
     comment: 'Role of the receiver',
   },
   message: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
     comment: 'Text message sent',
   },
