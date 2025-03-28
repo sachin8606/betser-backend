@@ -4,7 +4,8 @@ const User = require('./user.model');
 const Requests = sequelize.define('Request', {
   id: {
     type: DataTypes.STRING,
-    primaryKey: true
+    primaryKey: true,
+    unique:true
   },
   userId: {
     type: DataTypes.INTEGER, 
