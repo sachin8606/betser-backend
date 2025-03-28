@@ -7,7 +7,7 @@ const Requests = sequelize.define('Request', {
     primaryKey: true
   },
   userId: {
-    type: DataTypes.UUID, 
+    type: DataTypes.INTEGER, 
     allowNull: false,
     references: { model: 'Users', key: 'id' },
   },
@@ -30,6 +30,10 @@ const Requests = sequelize.define('Request', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  comment:{
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
 }, {
   timestamps: true,
 });

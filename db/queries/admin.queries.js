@@ -62,9 +62,9 @@ exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 } = {}, full =
   if (full) {
     const result = await User.findAll({
       where: query,
+      order: [['createdAt', 'DESC']],
       attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id','countryCode'],
     });
-    console.log("result", result);
     return result
   }
 
@@ -73,6 +73,7 @@ exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 } = {}, full =
     attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id'],
     limit,
     offset,
+    order: [['createdAt', 'DESC']]
   });
 
   const totalRecords = await User.count({ where: query });
@@ -100,6 +101,7 @@ exports.getAllUsers = async ({ filter = {}, page = 1, limit = 10} = {},full = fa
     where: filter,
     limit,
     offset,
+    order: [['createdAt', 'DESC']]
   });
 
   const totalRecords = await User.count({ where: filter });

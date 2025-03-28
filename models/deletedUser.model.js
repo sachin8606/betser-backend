@@ -3,7 +3,7 @@ const sequelize = require('../db/sequelize');
 
 const DeletedUser = sequelize.define('DeletedUser', {
   id: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },

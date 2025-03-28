@@ -8,7 +8,7 @@ const Alert = sequelize.define('Alert', {
     primaryKey: true
   },
   userId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   type: {

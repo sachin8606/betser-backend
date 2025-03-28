@@ -16,7 +16,7 @@ const EmergencyContact = sequelize.define('EmergencyContact', {
     allowNull: false,
   },
   userId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'Users',

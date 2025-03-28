@@ -8,7 +8,7 @@ const Communication = sequelize.define('Communication', {
     primaryKey: true
   },
   senderId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     comment: 'ID of the sender (can be an Admin or User)',
   },
@@ -18,7 +18,7 @@ const Communication = sequelize.define('Communication', {
     comment: 'Role of the sender',
   },
   receiverId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: true,
     comment: 'ID of the receiver (can be an Admin or User)',
   },

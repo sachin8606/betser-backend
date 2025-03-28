@@ -80,7 +80,6 @@ exports.updateAdmin = async (req,res) =>{
 // Search users
 exports.searchUsersHandler = async (req, res) => {
     try {
-        console.log(req.body)
         const users = await searchUsers({...req.body});
         res.status(200).json(users);
     } catch (error) {

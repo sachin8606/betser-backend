@@ -5,8 +5,8 @@ const EmergencyContact = require('./emergencyContact.model');
 
 const User = sequelize.define('User', {
   id: {
-    type: DataTypes.UUID,   
-    defaultValue: UUIDV4,
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
   },
   otp: {
@@ -24,6 +24,10 @@ const User = sequelize.define('User', {
   countryCode:{
     type:DataTypes.INTEGER,
     allowNull:true,
+  },
+  device:{
+    type:DataTypes.STRING,
+    allowNull:true
   },
   nickName: {
     type: DataTypes.STRING,
