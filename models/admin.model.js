@@ -5,7 +5,7 @@ const sequelize = require('../db/sequelize'); // Assuming you have the sequelize
 const Admin = sequelize.define('Admin', {
   id: {
     type: DataTypes.INTEGER,
-    defaultValue: DataTypes.UUIDV4,
+    autoIncrement: true,
     primaryKey: true
   },
   name: {
