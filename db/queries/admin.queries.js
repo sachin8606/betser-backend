@@ -63,14 +63,14 @@ exports.searchUsers = async ({ filters = {}, page = 1, limit = 10 } = {}, full =
     const result = await User.findAll({
       where: query,
       order: [['createdAt', 'DESC']],
-      attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id','countryCode'],
+      attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id','device','countryCode'],
     });
     return result
   }
 
   const result = await User.findAndCountAll({
     where: query,
-    attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt', 'id'],
+    attributes: ['firstName', 'lastName', 'nickName', 'phone', 'email', 'createdAt','device','countryCode', 'id'],
     limit,
     offset,
     order: [['createdAt', 'DESC']]

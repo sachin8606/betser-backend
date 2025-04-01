@@ -103,6 +103,7 @@ exports.exportUsers = async (req, res) => {
             user.nickName,
             user.phone,
             user.email,
+            user.device,
             user.createdAt.toISOString(),
             user.id,
         ]);
