@@ -44,6 +44,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      comment:{
+        type: Sequelize.TEXT,
+        allowNull:true
+      }
     });
   },
 
