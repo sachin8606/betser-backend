@@ -4,7 +4,7 @@ const {  TRUSTED_CONTACTS_ALERT } = require('../types');
 const { deleteAlertsByType } = require('../db/queries/alert.queries');
 const { where, fn, col, Op } = require('sequelize');
 const { generateOtp } = require('../utils/math.utils');
-const { sendSMS } = require('../services/sms.service');
+const { sendSMS, sendMail } = require('../services/sms.service');
 const { returnUsers } = require('../utils/returnBody.utils');
 const { createDeletedUser } = require('../db/queries/deletedUsers.queries');
 const {accountRegistrationOtp,addTrustedContactTemplate, loginOtpTemplate} = require('../templates/sms.template')
@@ -126,6 +126,7 @@ exports.loginUserMobile = async (req, res) => {
       if (user.isActive) {
         const otp = generateOtp()
         await sendSMS(`+${countryCode}${phone}`, loginOtpTemplate(otp))
+        await sendMail(user.email,'Otp for behelp login', loginOtpTemplate(otp))
         await user.update({ otp })
         res.json({ message: 'otp generated' });
       }

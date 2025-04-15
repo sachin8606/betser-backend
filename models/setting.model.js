@@ -13,6 +13,14 @@ const Settings = sequelize.define('Setting', {
   learnUrl:{
     type: DataTypes.STRING, 
     allowNull: true,
+  },
+  email:{
+    type: DataTypes.STRING, 
+    allowNull: true,
+  },
+  address:{
+    type: DataTypes.STRING, 
+    allowNull: true,
   }
 }, {
   timestamps: true,
