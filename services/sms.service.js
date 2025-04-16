@@ -18,7 +18,6 @@ const mailTransporter = nodemailer.createTransport({
 
 const sendSMS = async (to, message) => {
   try {
-    console.log(to, message)
     const response = await client.messages.create({
       body: message,
       from: twilioPhoneNumber,
