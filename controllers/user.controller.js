@@ -1,13 +1,13 @@
 const { createUser, getEmergencyContacts, deleteEmergencyContactFromUser, findUser, addEmergencyContactsToUser, countEmergencyContacts, updateUserDetails, findUserById, deleteUser } = require('../db/queries/user.queries');
 const jwt = require('jsonwebtoken');
-const {  TRUSTED_CONTACTS_ALERT } = require('../types');
+const { TRUSTED_CONTACTS_ALERT } = require('../types');
 const { deleteAlertsByType } = require('../db/queries/alert.queries');
 const { where, fn, col, Op } = require('sequelize');
 const { generateOtp } = require('../utils/math.utils');
 const { sendSMS, sendMail } = require('../services/sms.service');
 const { returnUsers } = require('../utils/returnBody.utils');
 const { createDeletedUser } = require('../db/queries/deletedUsers.queries');
-const {accountRegistrationOtp,addTrustedContactTemplate, loginOtpTemplate} = require('../templates/sms.template')
+const { accountRegistrationOtp, addTrustedContactTemplate, loginOtpTemplate } = require('../templates/sms.template')
 const generateToken = (user) => {
   const payload = {
     id: user.id,
@@ -17,32 +17,47 @@ const generateToken = (user) => {
 };
 
 exports.registerUser = async (req, res) => {
-  const { phone, countryCode } = req.body;
+  const { phone, countryCode, email } = req.body;
 
   try {
-    const filterObj = {
-      [Op.or]: [
-        where(fn('CONCAT', col('countryCode'), col('phone')), `${countryCode}${phone}`)
-      ]
-    };
+  
+    const phoneUser = await findUser({
+      [Op.and]: where(fn('CONCAT', col('countryCode'), col('phone')), `${countryCode}${phone}`)
+    });
+    
 
-    const userExists = await findUser(filterObj);
-    if (userExists && userExists.isActive) {
-      return res.status(400).json({ message: 'User already exists' });
+    if (email) {
+      const emailUser = await findUser({ email });
+
+      // If email exists on a different user
+      if (emailUser && (!phoneUser || emailUser.id !== phoneUser.id)) {
+        return res.status(400).json({ message: 'Email already exists with another user' });
+      }
     }
+
+    if (phoneUser && phoneUser.isActive) {
+      return res.status(400).json({ message: 'Phone number already exists' });
+    }
+
+    
     const otp = generateOtp();
-    await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp))
-    if (userExists && !userExists.isActive) {
-      await updateUserDetails(userExists.id, { otp: otp })
-      return res.status(200).json({ message: 'Otp sent successfully.' })
+    await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp));
+    await sendMail(email,"OTP for behelp registration", accountRegistrationOtp(otp))
+
+    if (phoneUser && !phoneUser.isActive) {
+      await updateUserDetails(phoneUser.id, { otp });
+      return res.status(200).json({ message: 'Otp sent successfully.' });
     }
-    await createUser({ phone, countryCode, otp })
-    return res.status(200).json({ "message": 'Otp sent successfully.' });
+
+    await createUser({ phone, countryCode, otp, email });
+    return res.status(200).json({ message: 'Otp sent successfully.' });
+
   } catch (err) {
     console.error('Error in registerUser:', err);
-    return res.status(500).json({ "message": 'Server error', error: err.message });
+    return res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 exports.verifyOtpRegistrationMobile = async (req, res) => {
   try {
@@ -106,7 +121,7 @@ exports.updateUserDetailsHandler = async (req, res) => {
       data = { ...data, isActive: true }
     }
     const updatedUser = await updateUserDetails(id, data);
-    res.status(200).json({ "message": "success", "user": updatedUser, "token":generateToken(updatedUser) });
+    res.status(200).json({ "message": "success", "user": updatedUser, "token": generateToken(updatedUser) });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -126,7 +141,7 @@ exports.loginUserMobile = async (req, res) => {
       if (user.isActive) {
         const otp = generateOtp()
         await sendSMS(`+${countryCode}${phone}`, loginOtpTemplate(otp))
-        await sendMail(user.email,'Otp for behelp login', loginOtpTemplate(otp))
+        await sendMail(user.email, 'Otp for behelp login', loginOtpTemplate(otp))
         await user.update({ otp })
         res.json({ message: 'otp generated' });
       }
@@ -201,12 +216,12 @@ exports.addEmergencyContacts = async (req, res) => {
         const username = user.firstName + " " + user.lastName;
         const userMobile = "+" + user.countryCode + " " + user.phone;
         if (contactCount >= 1) {
-          console.log(userId,TRUSTED_CONTACTS_ALERT)
+          console.log(userId, TRUSTED_CONTACTS_ALERT)
           await deleteAlertsByType(userId, TRUSTED_CONTACTS_ALERT);
         }
 
         contacts.map(async (item, index) => {
-          await sendSMS(`+${item.phone}`,addTrustedContactTemplate(username, userMobile))
+          await sendSMS(`+${item.phone}`, addTrustedContactTemplate(username, userMobile))
         })
         res.status(201).json({ message: "Emergency contacts added", data: updatedContacts });
       }
