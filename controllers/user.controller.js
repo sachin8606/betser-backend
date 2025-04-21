@@ -41,8 +41,8 @@ exports.registerUser = async (req, res) => {
 
     
     const otp = generateOtp();
-    await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp));
-    await sendMail(email,"OTP for behelp registration", accountRegistrationOtp(otp))
+    await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp,phoneUser.firstName+" "+phoneUser.lastName));
+    await sendMail(email,"OTP for behelp registration", accountRegistrationOtp(otp,phoneUser.firstName+" "+phoneUser.lastName))
 
     if (phoneUser && !phoneUser.isActive) {
       await updateUserDetails(phoneUser.id, { otp });
@@ -140,8 +140,8 @@ exports.loginUserMobile = async (req, res) => {
     if (user) {
       if (user.isActive) {
         const otp = generateOtp()
-        await sendSMS(`+${countryCode}${phone}`, loginOtpTemplate(otp))
-        await sendMail(user.email, 'Otp for behelp login', loginOtpTemplate(otp))
+        await sendSMS(`+${countryCode}${phone}`, loginOtpTemplate(otp,user.firstName+" "+user.lastName))
+        await sendMail(user.email, 'Otp for behelp login', loginOtpTemplate(otp,user.firstName+" "+user.lastName))
         await user.update({ otp })
         res.json({ message: 'otp generated' });
       }
