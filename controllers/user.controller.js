@@ -17,7 +17,7 @@ const generateToken = (user) => {
 };
 
 exports.registerUser = async (req, res) => {
-  const { phone, countryCode, email } = req.body;
+  const { phone, countryCode, email,firstName, lastName } = req.body;
 
   try {
   
@@ -41,8 +41,8 @@ exports.registerUser = async (req, res) => {
 
     
     const otp = generateOtp();
-    await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp,phoneUser.firstName+" "+phoneUser.lastName));
-    await sendMail(email,"OTP for behelp registration", accountRegistrationOtp(otp,phoneUser.firstName+" "+phoneUser.lastName))
+    await sendSMS(`+${countryCode}${phone}`, accountRegistrationOtp(otp,firstName+" "+lastName));
+    await sendMail(email,"OTP for behelp registration", accountRegistrationOtp(otp,firstName+" "+lastName))
 
     if (phoneUser && !phoneUser.isActive) {
       await updateUserDetails(phoneUser.id, { otp });
