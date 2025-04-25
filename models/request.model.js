@@ -20,7 +20,7 @@ const Requests = sequelize.define('Request', {
     type: DataTypes.TEXT,
   },
   status: {
-    type: DataTypes.ENUM('pending','progress','resolved','failed'),
+    type: DataTypes.ENUM('pending','progress','resolved','failed','cancelled'),
     defaultValue: 'pending',
   },
   mediaUrl: {
