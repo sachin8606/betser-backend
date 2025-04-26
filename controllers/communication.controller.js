@@ -1,4 +1,5 @@
 const communicationQueries = require('../db/queries/communication.queries');
+const { convertWebmToMp4 } = require('../utils/conversion.utils');
 const { s3Upload } = require('../utils/s3Upload.utils');
 
 // Create a new message
@@ -53,12 +54,12 @@ exports.getMessagesForUser = async (req, res) => {
     }
 };
 
-exports.getUsersListChat = async(req,res) =>{
-    try{
+exports.getUsersListChat = async (req, res) => {
+    try {
         const users = await communicationQueries.getUserListChat();
         res.status(200).json({ message: "Fetched successfully", data: users });
-    }catch(error){
-        res.status(500).json({message:"Error",error:error.message})
+    } catch (error) {
+        res.status(500).json({ message: "Error", error: error.message })
     }
 }
 
@@ -71,22 +72,34 @@ exports.uploadFile = async (req, res) => {
         return res.status(400).json({ status: "error", message: "No file uploaded" });
       }
   
-      const file = {
-        name: req.file.originalname,
-        type: req.file.mimetype,
-        data: req.file.buffer,
-        folder: req.body.folder || "uploads",
+      let fileBuffer = req.file.buffer;
+      let fileName = req.file.originalname;
+      let fileType = req.file.mimetype;
+  
+      // If the file is webm, convert it
+      if (req.file.mimetype === 'video/webm') {
+        console.log("Converting WEBM to MP4...");
+        fileBuffer = await convertWebmToMp4(req.file.buffer);
+        fileName = fileName.replace('.webm', '.mp4');
+        fileType = 'video/mp4';
       }
-      console.log("dfsef")
+  
+      const file = {
+        name: fileName,
+        type: fileType,
+        data: fileBuffer,
+        folder: req.body.folder || "uploads",
+      };
+  
       const uploadResponse = await s3Upload(file);
-      console.log("dfsef")
+  
       if (uploadResponse.msg !== "success") {
         throw new Error("S3 Upload Failed");
       }
+  
       res.json({ status: "success", mediaUrl: uploadResponse.data });
     } catch (error) {
-        console.log(error)
-      res.status(500).json({ status: "error", message: error });
+      console.log(error);
+      res.status(500).json({ status: "error", message: error.message || error });
     }
   };
-  
