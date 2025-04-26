@@ -17,7 +17,8 @@ const XLSX = require('xlsx');
 const generateToken = (user) => {
     const payload = {
         id: user.id,
-        role: user.role
+        role: user.role,
+        name:user.name
     };
     return jwt.sign(payload, process.env.JWT_SECRET);
 };

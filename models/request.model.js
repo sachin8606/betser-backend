@@ -31,9 +31,10 @@ const Requests = sequelize.define('Request', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  comment:{
-    type: DataTypes.TEXT,
-    allowNull: true
+  comments: { 
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: [],
   }
 }, {
   timestamps: true,

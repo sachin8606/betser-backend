@@ -6,5 +6,5 @@ const router = express.Router();
 
 router.post('/create', authenticate, createRequest);
 router.post('/', authenticate, getRequests);
-router.post('/update', authenticate, roleAuthentication(["supportAdmin","superAdmin"]),updateRequest);
+router.put('/update/:id', authenticate, roleAuthentication(["supportAdmin","superAdmin"]),updateRequest);
 module.exports = router;

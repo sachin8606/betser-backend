@@ -1,3 +1,4 @@
+const Request = require('../models/request.model');
 const { createRequest, fetchRequests, updateRequestStatus } = require('../db/queries/request.queries');
 const { sendPushNotification } = require('../utils/notification.utils');
 const {createNotification}  = require('../db/queries/notification.queries');
@@ -43,12 +44,30 @@ exports.getRequests = async (req, res) => {
   }
 };
 
-exports.updateRequest = async (req, res) => {
+exports.updateRequest = async(req, res)=> {
   try {
-    const {id, data} = req.body
-    const requests = await updateRequestStatus(id,data);
-    res.status(200).json({ message: 'Requests updated successfully', requests });
+    const { id } = req.params;
+    const { status, comments } = req.body;
+
+    const request = await Request.findByPk(id);
+
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    if (status) request.status = status;
+    
+    if (Array.isArray(comments) && comments.length > 0 && comments[0].comment) {
+      comments[0].admin = req.user.name;
+      request.comments = [...(request.comments || []), ...comments];
+    }
+
+    await request.save();
+
+    res.status(200).json({ message: 'Request updated successfully', request });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Something went wrong' });
   }
-};
+}
+
